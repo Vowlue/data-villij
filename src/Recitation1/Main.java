@@ -1,4 +1,4 @@
-package sample;
+package Recitation1;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
