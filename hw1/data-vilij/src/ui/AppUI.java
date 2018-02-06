@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import vilij.propertymanager.PropertyManager;
 import vilij.templates.ApplicationTemplate;
 import vilij.templates.UITemplate;
+import settings.AppPropertyTypes;
 
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.ICONS_RESOURCE_PATH;
@@ -31,7 +32,6 @@ public final class AppUI extends UITemplate {
 
     @SuppressWarnings("FieldCanBeLocal")
     private Pane                         dataSpace;      // the half of the workspace devoted to data
-    private Pane                         graphSpace;     // the other half for the graph
     private Button                       scrnshotButton; // toolbar button to take a screenshot of the data
     private ScatterChart<Number, Number> chart;          // the chart where data will be displayed
     private Button                       displayButton;  // workspace button to display data on the chart
@@ -42,10 +42,8 @@ public final class AppUI extends UITemplate {
     private NumberAxis yAxis;
 
     private static final String SEPARATOR = "/";
-    private static final String TEXT_TITLE = "Data File";
-    private static final String DISPLAY = "Display";
-    private static final String DATA_VISUALIZATION = "Data Visualization";
     private String ssPath;
+    private PropertyManager manager;
 
     public ScatterChart<Number, Number> getChart() { return chart; }
 
@@ -60,7 +58,7 @@ public final class AppUI extends UITemplate {
     @Override
     protected void setResourcePaths(ApplicationTemplate applicationTemplate) {
         super.setResourcePaths(applicationTemplate);
-        PropertyManager manager = applicationTemplate.manager;
+        manager = applicationTemplate.manager;
         String iconsPath = SEPARATOR + String.join(SEPARATOR,
                 manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
                 manager.getPropertyValue(ICONS_RESOURCE_PATH.name()));
@@ -102,14 +100,13 @@ public final class AppUI extends UITemplate {
 
     private void layout() {
         // TODO for homework 1 i think does the layout of the charts etc
-        displayTitle = new Label(TEXT_TITLE);
+        displayTitle = new Label(manager.getPropertyValue(DATA_TITLE.name()));
         textArea = new TextArea();
-        displayButton = new Button(DISPLAY);
+        displayButton = new Button(manager.getPropertyValue(DISPLAY.name()));
         dataSpace = new VBox(displayTitle, textArea, displayButton);
         chart = new ScatterChart<>(xAxis, yAxis);
-        chart.setTitle(DATA_VISUALIZATION);
+        chart.setTitle(manager.getPropertyValue(DATA_VISUALIZATION.name()));
         chart.setPrefSize(windowWidth*0.9, windowHeight*0.66);
-        graphSpace = new VBox(chart);
         workspace.getChildren().addAll(dataSpace, chart);
         appPane.getChildren().add(workspace);
     }
