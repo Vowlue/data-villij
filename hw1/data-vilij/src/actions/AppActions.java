@@ -5,6 +5,7 @@ import vilij.templates.ApplicationTemplate;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import javafx.application.Platform;
 
 /**
  * This is the concrete implementation of the action handlers required by the application.
@@ -26,6 +27,7 @@ public final class AppActions implements ActionComponent {
     @Override
     public void handleNewRequest() {
         // TODO for homework 1
+
     }
 
     @Override
@@ -41,6 +43,7 @@ public final class AppActions implements ActionComponent {
     @Override
     public void handleExitRequest() {
         // TODO for homework 1
+        Platform.exit();
     }
 
     @Override
