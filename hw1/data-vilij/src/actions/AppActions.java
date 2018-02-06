@@ -1,5 +1,6 @@
 package actions;
 
+import ui.AppUI;
 import vilij.components.ActionComponent;
 import vilij.templates.ApplicationTemplate;
 
@@ -27,7 +28,9 @@ public final class AppActions implements ActionComponent {
     @Override
     public void handleNewRequest() {
         // TODO for homework 1
-
+        applicationTemplate.getUIComponent().clear();
+        applicationTemplate.getDataComponent().clear();
+        ((AppUI)applicationTemplate.getUIComponent()).getChart().getData().clear();
     }
 
     @Override

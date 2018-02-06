@@ -1,6 +1,7 @@
 package ui;
 
 import actions.AppActions;
+import dataprocessors.AppData;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Button;
@@ -93,7 +94,10 @@ public final class AppUI extends UITemplate {
 
     @Override
     public void clear() {
-        // TODO for homework 1 i think clears the chart?
+        // TODO for homework 1
+        textArea.clear();
+        newButton.setDisable(true);
+        saveButton.setDisable(true);
     }
 
     private void layout() {
@@ -118,7 +122,7 @@ public final class AppUI extends UITemplate {
             newButton.setDisable(false);
             saveButton.setDisable(false);
         });
-        displayButton.setOnAction(e -> System.out.println(textArea.getText()));
+        displayButton.setOnAction(e -> ((AppData)(applicationTemplate.getDataComponent())).loadData(textArea.getText()));
 
     }
 }
