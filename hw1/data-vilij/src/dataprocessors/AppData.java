@@ -2,6 +2,7 @@ package dataprocessors;
 
 import ui.AppUI;
 import vilij.components.DataComponent;
+import vilij.components.ErrorDialog;
 import vilij.templates.ApplicationTemplate;
 
 import java.nio.file.Path;
@@ -31,10 +32,15 @@ public class AppData implements DataComponent {
         // TODO for homework 1
         try {
             processor.processString(dataString);
+            displayData();
         } catch (Exception e) {
-            e.printStackTrace();
+            ErrorDialog.getDialog().setWidth(applicationTemplate.getUIComponent().getPrimaryWindow().getWidth()*((double)1/3));
+            ErrorDialog.getDialog().setHeight(applicationTemplate.getUIComponent().getPrimaryWindow().getWidth()*((double)1/5));
+            String errorMessage = e.getMessage();
+            System.out.println(errorMessage);
+            if(errorMessage.contains("@"))
+                ErrorDialog.getDialog().show("Invalid Format", "data names start with @");
         }
-        displayData();
     }
 
     @Override

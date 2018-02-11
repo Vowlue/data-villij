@@ -1,12 +1,21 @@
 package actions;
 
+import javafx.stage.FileChooser;
 import ui.AppUI;
 import vilij.components.ActionComponent;
+import vilij.components.ConfirmationDialog;
+import vilij.components.Dialog;
 import vilij.templates.ApplicationTemplate;
+import vilij.propertymanager.PropertyManager;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import javafx.application.Platform;
+import static settings.AppPropertyTypes.*;
 
 /**
  * This is the concrete implementation of the action handlers required by the application.
@@ -28,9 +37,12 @@ public final class AppActions implements ActionComponent {
     @Override
     public void handleNewRequest() {
         // TODO for homework 1
-        applicationTemplate.getUIComponent().clear();
-        applicationTemplate.getDataComponent().clear();
-        ((AppUI)applicationTemplate.getUIComponent()).getChart().getData().clear();
+        // call prompt to save here if it returns true then call this
+        if(promptToSave()){
+            applicationTemplate.getUIComponent().clear();
+            applicationTemplate.getDataComponent().clear();
+            ((AppUI)applicationTemplate.getUIComponent()).getChart().getData().clear();
+        }
     }
 
     @Override
@@ -70,10 +82,24 @@ public final class AppActions implements ActionComponent {
      *
      * @return <code>false</code> if the user presses the <i>cancel</i>, and <code>true</code> otherwise.
      */
-    private boolean promptToSave() throws IOException {
+    private boolean promptToSave(){
         // TODO for homework 1
-        // TODO remove the placeholder line below after you have implemented this method
-        // last thing
+        // throws IOException
+        PropertyManager manager = applicationTemplate.manager;
+        Dialog cd = ConfirmationDialog.getDialog();
+        ((ConfirmationDialog)cd).setWidth(applicationTemplate.getUIComponent().getPrimaryWindow().getWidth()*((double)5/12));
+        cd.show(manager.getPropertyValue(SAVE_UNSAVED_WORK_TITLE.name()), manager.getPropertyValue(SAVE_UNSAVED_WORK.name()));
+        ConfirmationDialog.Option response = ((ConfirmationDialog)cd).getSelectedOption();
+        dataFilePath = Paths.get(".");
+        if(response != null && response.equals(ConfirmationDialog.Option.YES)){
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle(manager.getPropertyValue(SAVE_UNSAVED_WORK_TITLE.name()));
+            //String currentPath = Paths.get(".").toAbsolutePath().normalize().toString()+"\\hw1\\data-vilij\\resources\\data";
+            fileChooser.setInitialDirectory(new File(dataFilePath.toString()));
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(manager.getPropertyValue(DATA_FILE_EXT_DESC.name()), manager.getPropertyValue(DATA_FILE_EXT.name())));
+            fileChooser.showSaveDialog((ConfirmationDialog)cd);
+            return !response.equals(ConfirmationDialog.Option.CANCEL);
+        }
         return false;
     }
 }

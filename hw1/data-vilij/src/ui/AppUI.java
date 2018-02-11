@@ -35,7 +35,7 @@ public final class AppUI extends UITemplate {
     private ScatterChart<Number, Number> chart;          // the chart where data will be displayed
     private Button                       displayButton;  // workspace button to display data on the chart
     private TextArea                     textArea;       // text area for new data input
-    private boolean                      hasNewText;     // whether or not the text area has any new data since last display
+    private boolean                      hasNewText;     // whether or not the text area has any new data since last display (feels unneeded)
     private Label                        displayTitle;   // label for title
     private NumberAxis xAxis;
     private NumberAxis yAxis;
@@ -112,11 +112,15 @@ public final class AppUI extends UITemplate {
 
     private void setWorkspaceActions() {
         // TODO for homework 1
-        // must make the new button only enable when there is text in the textarea and disable when there isnt
-        // same with save?
         textArea.textProperty().addListener(e -> {
-            newButton.setDisable(false);
-            saveButton.setDisable(false);
+            if(!textArea.getText().equals("")){
+                hasNewText = true;
+            }
+            else{
+                hasNewText = false;
+            }
+            newButton.setDisable(!hasNewText);
+            saveButton.setDisable(!hasNewText);
         });
         displayButton.setOnAction(e -> ((AppData)(applicationTemplate.getDataComponent())).loadData(textArea.getText()));
 
