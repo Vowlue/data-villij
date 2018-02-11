@@ -2,6 +2,7 @@ package dataprocessors;
 
 import ui.AppUI;
 import vilij.components.DataComponent;
+import vilij.components.Dialog;
 import vilij.components.ErrorDialog;
 import vilij.templates.ApplicationTemplate;
 
@@ -34,12 +35,12 @@ public class AppData implements DataComponent {
             processor.processString(dataString);
             displayData();
         } catch (Exception e) {
-            ErrorDialog.getDialog().setWidth(applicationTemplate.getUIComponent().getPrimaryWindow().getWidth()*((double)1/3));
-            ErrorDialog.getDialog().setHeight(applicationTemplate.getUIComponent().getPrimaryWindow().getWidth()*((double)1/5));
             String errorMessage = e.getMessage();
             System.out.println(errorMessage);
             if(errorMessage.contains("@"))
-                ErrorDialog.getDialog().show("Invalid Format", "data names start with @");
+                applicationTemplate.getDialog(Dialog.DialogType.ERROR).show("Invalid Data Format", "The lines of your data should start with @.");
+            else
+                applicationTemplate.getDialog(Dialog.DialogType.ERROR).show("Invalid Data Format", "The format of your data should consist of @x where x represents a unique tag, a unique label name, and your x and y coordinates all separated by tabs.");
         }
     }
 
