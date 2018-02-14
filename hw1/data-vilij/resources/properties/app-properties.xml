@@ -14,7 +14,6 @@ functionality within the main workspace. -->
         <property name="ANNOTATION_CHARACTER" value="@"/>
 
         <!-- DV STRING CONSTANTS -->
-        <property name="DATA_TITLE" value="Data File"/>
         <property name="DISPLAY" value="Display"/>
         <property name="DATA_VISUALIZATION" value="Data Visualization"/>
 
@@ -42,7 +41,7 @@ functionality within the main workspace. -->
         <!-- APPLICATION-SPECIFIC PARAMETERS -->
         <property name="DATA_FILE_EXT" value=".tsd"/>
         <property name="DATA_FILE_EXT_DESC" value="Tab-Separated Data File"/>
-        <property name="TEXT_AREA" value="text area"/>
+        <property name="TEXT_AREA" value="Data File"/>
         <property name="SPECIFIED_FILE" value=" specified file"/>
 
     </property_list>

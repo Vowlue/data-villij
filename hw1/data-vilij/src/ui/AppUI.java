@@ -2,6 +2,7 @@ package ui;
 
 import actions.AppActions;
 import dataprocessors.AppData;
+import javafx.geometry.Pos;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Button;
@@ -10,6 +11,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import vilij.propertymanager.PropertyManager;
 import vilij.templates.ApplicationTemplate;
@@ -20,6 +22,7 @@ import vilij.templates.UITemplate;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.ICONS_RESOURCE_PATH;
 import static settings.AppPropertyTypes.*;
+import static vilij.settings.PropertyTypes.WINDOW_WIDTH;
 
 /**
  * This is the application's user interface implementation.
@@ -105,7 +108,10 @@ public final class AppUI extends UITemplate {
 
     private void layout() {
         // TODO for homework 1 i think does the layout of the charts etc
-        displayTitle = new Label(manager.getPropertyValue(DATA_TITLE.name()));
+        displayTitle = new Label(manager.getPropertyValue(TEXT_AREA.name()));
+        displayTitle.setPrefWidth(windowWidth/2);
+        displayTitle.setFont(new Font(18));
+        displayTitle.setAlignment(Pos.CENTER);
         textArea = new TextArea();
         displayButton = new Button(manager.getPropertyValue(DISPLAY.name()));
         dataSpace = new VBox(displayTitle, textArea, displayButton);

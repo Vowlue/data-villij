@@ -16,7 +16,7 @@ public enum AppPropertyTypes {
     ANNOTATION_CHARACTER,
 
     /* string constants */
-    DATA_TITLE, DISPLAY, DATA_VISUALIZATION,
+    DISPLAY, DATA_VISUALIZATION,
 
     /* user interface icon file names */
     SCREENSHOT_ICON,
