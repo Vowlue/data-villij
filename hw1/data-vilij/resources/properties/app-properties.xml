@@ -31,7 +31,7 @@ functionality within the main workspace. -->
         <!-- ERROR MESSAGES -->
         <property name="RESOURCE_SUBDIR_NOT_FOUND" value="Directory not found under resources."/>
         <property name="DATA_FORMAT_ERROR_1" value="Your data should start with '@'."/>
-        <property name="DATA_FORMAT_ERROR_2" value="Your data should be separated into 3 sections of a name '@x', a label 'label' and your x and y coordinates 'x,y'."/>
+        <property name="DATA_FORMAT_ERROR_2" value="Your data should be tab-separated into 3 sections of a name '@x', a label 'label' and your x and y coordinates 'x,y'."/>
 
         <!-- APPLICATION-SPECIFIC MESSAGE TITLES -->
         <property name="SAVE_UNSAVED_WORK_TITLE" value="Save Current Work"/>
