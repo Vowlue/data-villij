@@ -6,6 +6,12 @@ functionality within the main workspace. -->
     <property_list>
         <!-- RESOURCE FILES AND FOLDERS -->
         <property name="DATA_RESOURCE_PATH" value="data"/>
+        <property name="HW_PATH" value="hw1"/>
+        <property name="DATA_VILIJ_PATH" value="data-vilij"/>
+        <property name="RESOURCE_PATH" value="resources"/>
+
+        <!-- IDENTIFICATION CHARACTERS -->
+        <property name="ANNOTATION_CHARACTER" value="@"/>
 
         <!-- DV STRING CONSTANTS -->
         <property name="DATA_TITLE" value="Data File"/>
@@ -24,6 +30,8 @@ functionality within the main workspace. -->
 
         <!-- ERROR MESSAGES -->
         <property name="RESOURCE_SUBDIR_NOT_FOUND" value="Directory not found under resources."/>
+        <property name="DATA_FORMAT_ERROR_1" value="Your data should start with '@'."/>
+        <property name="DATA_FORMAT_ERROR_2" value="Your data should be separated into 3 sections of a name '@x', a label 'label' and your x and y coordinates 'x,y'."/>
 
         <!-- APPLICATION-SPECIFIC MESSAGE TITLES -->
         <property name="SAVE_UNSAVED_WORK_TITLE" value="Save Current Work"/>

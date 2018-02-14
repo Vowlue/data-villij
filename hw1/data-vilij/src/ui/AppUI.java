@@ -15,6 +15,8 @@ import vilij.propertymanager.PropertyManager;
 import vilij.templates.ApplicationTemplate;
 import vilij.templates.UITemplate;
 
+
+
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.ICONS_RESOURCE_PATH;
 import static settings.AppPropertyTypes.*;
@@ -45,6 +47,10 @@ public final class AppUI extends UITemplate {
     private PropertyManager manager;
 
     public ScatterChart<Number, Number> getChart() { return chart; }
+
+    public TextArea getTextArea(){
+        return textArea;
+    }
 
     public AppUI(Stage primaryStage, ApplicationTemplate applicationTemplate) {
         super(primaryStage, applicationTemplate);
@@ -113,16 +119,13 @@ public final class AppUI extends UITemplate {
     private void setWorkspaceActions() {
         // TODO for homework 1
         textArea.textProperty().addListener(e -> {
-            if(!textArea.getText().equals("")){
-                hasNewText = true;
-            }
-            else{
-                hasNewText = false;
-            }
+            hasNewText = !textArea.getText().equals("");
             newButton.setDisable(!hasNewText);
             saveButton.setDisable(!hasNewText);
         });
-        displayButton.setOnAction(e -> ((AppData)(applicationTemplate.getDataComponent())).loadData(textArea.getText()));
-
+        displayButton.setOnAction(e -> {
+            ((AppUI) applicationTemplate.getUIComponent()).getChart().getData().clear();
+            ((AppData)(applicationTemplate.getDataComponent())).loadData(textArea.getText());
+        });
     }
 }

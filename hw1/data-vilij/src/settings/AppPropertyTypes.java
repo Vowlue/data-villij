@@ -10,7 +10,10 @@ package settings;
 public enum AppPropertyTypes {
 
     /* resource files and folders */
-    DATA_RESOURCE_PATH,
+    DATA_RESOURCE_PATH, HW_PATH, DATA_VILIJ_PATH, RESOURCE_PATH,
+
+    /* string constants */
+    ANNOTATION_CHARACTER,
 
     /* string constants */
     DATA_TITLE, DISPLAY, DATA_VISUALIZATION,
@@ -22,7 +25,7 @@ public enum AppPropertyTypes {
     SCREENSHOT_TOOLTIP,
 
     /* error messages */
-    RESOURCE_SUBDIR_NOT_FOUND,
+    RESOURCE_SUBDIR_NOT_FOUND, DATA_FORMAT_ERROR_1, DATA_FORMAT_ERROR_2,
 
     /* application-specific message titles */
     SAVE_UNSAVED_WORK_TITLE,

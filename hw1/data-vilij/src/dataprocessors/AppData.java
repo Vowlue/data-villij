@@ -3,10 +3,13 @@ package dataprocessors;
 import ui.AppUI;
 import vilij.components.DataComponent;
 import vilij.components.Dialog;
-import vilij.components.ErrorDialog;
+import vilij.propertymanager.PropertyManager;
 import vilij.templates.ApplicationTemplate;
 
 import java.nio.file.Path;
+
+import static settings.AppPropertyTypes.*;
+import static vilij.settings.PropertyTypes.*;
 
 /**
  * This is the concrete application-specific implementation of the data component defined by the Vilij framework.
@@ -35,12 +38,12 @@ public class AppData implements DataComponent {
             processor.processString(dataString);
             displayData();
         } catch (Exception e) {
+            PropertyManager manager = applicationTemplate.manager;
             String errorMessage = e.getMessage();
-            System.out.println(errorMessage);
-            if(errorMessage.contains("@"))
-                applicationTemplate.getDialog(Dialog.DialogType.ERROR).show("Invalid Data Format", "The lines of your data should start with @.");
+            if(errorMessage.contains(manager.getPropertyValue(ANNOTATION_CHARACTER.name())))
+                applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(LOAD_ERROR_TITLE.name()), manager.getPropertyValue(DATA_FORMAT_ERROR_1.name()));
             else
-                applicationTemplate.getDialog(Dialog.DialogType.ERROR).show("Invalid Data Format", "The format of your data should consist of @x where x represents a unique tag, a unique label name, and your x and y coordinates all separated by tabs.");
+                applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(LOAD_ERROR_TITLE.name()), manager.getPropertyValue(DATA_FORMAT_ERROR_2.name()));
         }
     }
 
