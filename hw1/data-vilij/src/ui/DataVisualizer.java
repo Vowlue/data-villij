@@ -5,8 +5,6 @@ import dataprocessors.AppData;
 import javafx.stage.Stage;
 import vilij.templates.ApplicationTemplate;
 
-import java.io.File;
-
 import static vilij.settings.InitializationParams.*;
 
 
