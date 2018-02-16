@@ -22,7 +22,6 @@ import vilij.templates.UITemplate;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.ICONS_RESOURCE_PATH;
 import static settings.AppPropertyTypes.*;
-import static vilij.settings.PropertyTypes.WINDOW_WIDTH;
 
 /**
  * This is the application's user interface implementation.

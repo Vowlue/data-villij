@@ -9,7 +9,7 @@ import vilij.templates.ApplicationTemplate;
 import java.nio.file.Path;
 
 import static settings.AppPropertyTypes.*;
-import static vilij.settings.PropertyTypes.*;
+import static vilij.settings.PropertyTypes.LOAD_ERROR_TITLE;
 
 /**
  * This is the concrete application-specific implementation of the data component defined by the Vilij framework.
