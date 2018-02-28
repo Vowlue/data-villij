@@ -53,6 +53,7 @@ public final class AppUI extends UITemplate {
     public TextArea getTextArea(){
         return textArea;
     }
+    public Button getSaveButton(){ return saveButton;}
 
     public AppUI(Stage primaryStage, ApplicationTemplate applicationTemplate) {
         super(primaryStage, applicationTemplate);
@@ -74,7 +75,6 @@ public final class AppUI extends UITemplate {
 
     @Override
     protected void setToolBar(ApplicationTemplate applicationTemplate) {
-        // TODO for homework 1
         super.setToolBar(applicationTemplate);
         PropertyManager manager = applicationTemplate.manager;
         scrnshotButton = super.setToolbarButton(ssPath, manager.getPropertyValue(SCREENSHOT_TOOLTIP.name()), true);
@@ -99,14 +99,12 @@ public final class AppUI extends UITemplate {
 
     @Override
     public void clear() {
-        // TODO for homework 1
         textArea.clear();
         newButton.setDisable(true);
         saveButton.setDisable(true);
     }
 
     private void layout() {
-        // TODO for homework 1 i think does the layout of the charts etc
         displayTitle = new Label(manager.getPropertyValue(TEXT_AREA.name()));
         displayTitle.setPrefWidth(windowWidth/2);
         displayTitle.setFont(new Font(18));
@@ -122,12 +120,26 @@ public final class AppUI extends UITemplate {
     }
 
     private void setWorkspaceActions() {
-        // TODO for homework 1
-        textArea.textProperty().addListener(e -> {
-            hasNewText = !textArea.getText().equals("");
-            newButton.setDisable(!hasNewText);
-            saveButton.setDisable(!hasNewText);
+        textArea.textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (!newValue.equals(oldValue)) {
+                    if (!newValue.isEmpty()) {
+                        ((AppActions) applicationTemplate.getActionComponent()).setIsSaved(false);
+                        if (newValue.charAt(newValue.length() - 1) == '\n')
+                            hasNewText = true;
+                        newButton.setDisable(false);
+                        saveButton.setDisable(false);
+                    } else {
+                        hasNewText = true;
+                        newButton.setDisable(true);
+                        saveButton.setDisable(true);
+                    }
+                }
+            } catch (IndexOutOfBoundsException e) {
+                System.err.println(newValue);
+            }
         });
+
         displayButton.setOnAction(e -> {
             ((AppUI) applicationTemplate.getUIComponent()).getChart().getData().clear();
             ((AppData)(applicationTemplate.getDataComponent())).loadData(textArea.getText());

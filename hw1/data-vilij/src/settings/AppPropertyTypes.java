@@ -10,13 +10,10 @@ package settings;
 public enum AppPropertyTypes {
 
     /* resource files and folders */
-    DATA_RESOURCE_PATH, HW_PATH, DATA_VILIJ_PATH, RESOURCE_PATH,
+    DATA_RESOURCE_PATH,
 
     /* string constants */
-    ANNOTATION_CHARACTER,
-
-    /* string constants */
-    DISPLAY, DATA_VISUALIZATION,
+    ASTERISK_CHARACTER, ANNOTATION_CHARACTER, DISPLAY, DATA_VISUALIZATION,
 
     /* user interface icon file names */
     SCREENSHOT_ICON,

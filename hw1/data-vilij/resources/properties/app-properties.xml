@@ -6,16 +6,15 @@ functionality within the main workspace. -->
     <property_list>
         <!-- RESOURCE FILES AND FOLDERS -->
         <property name="DATA_RESOURCE_PATH" value="data"/>
-        <property name="HW_PATH" value="hw1"/>
-        <property name="DATA_VILIJ_PATH" value="data-vilij"/>
-        <property name="RESOURCE_PATH" value="resources"/>
 
         <!-- IDENTIFICATION CHARACTERS -->
         <property name="ANNOTATION_CHARACTER" value="@"/>
+        <property name="ASTERISK_CHARACTER" value="*"/>
 
         <!-- DV STRING CONSTANTS -->
         <property name="DISPLAY" value="Display"/>
         <property name="DATA_VISUALIZATION" value="Data Visualization"/>
+        <property name="EXIT_WARNING" value="Exit Warning"/>
 
         <!-- USER INTERFACE ICON FILES -->
         <property name="SCREENSHOT_ICON" value="screenshot.png"/>
