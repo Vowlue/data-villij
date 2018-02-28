@@ -22,7 +22,7 @@ public enum AppPropertyTypes {
     SCREENSHOT_TOOLTIP,
 
     /* error messages */
-    RESOURCE_SUBDIR_NOT_FOUND, DATA_FORMAT_ERROR_1, DATA_FORMAT_ERROR_2,
+    RESOURCE_SUBDIR_NOT_FOUND, DATA_FORMAT_ERROR_2,
 
     /* application-specific message titles */
     SAVE_UNSAVED_WORK_TITLE,

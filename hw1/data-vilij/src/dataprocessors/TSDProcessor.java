@@ -21,10 +21,10 @@ public final class TSDProcessor {
 
     public static class InvalidDataNameException extends Exception {
 
-        private static final String NAME_ERROR_MSG = "All data instance names must start with the @ character.";
+        private static final String NAME_ERROR_MSG = "All data instance names must start with the @ character";
 
         public InvalidDataNameException(String name) {
-            super(String.format("Invalid name '%s'." + NAME_ERROR_MSG, name));
+            super(String.format("Invalid name '%s'. " + NAME_ERROR_MSG, name));
         }
     }
 

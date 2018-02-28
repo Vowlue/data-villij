@@ -6,22 +6,21 @@ import javafx.geometry.Pos;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.control.Label;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import vilij.propertymanager.PropertyManager;
 import vilij.templates.ApplicationTemplate;
 import vilij.templates.UITemplate;
 
-
-
+import static settings.AppPropertyTypes.*;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.ICONS_RESOURCE_PATH;
-import static settings.AppPropertyTypes.*;
 
 /**
  * This is the application's user interface implementation.
@@ -36,11 +35,13 @@ public final class AppUI extends UITemplate {
     @SuppressWarnings("FieldCanBeLocal")
     private Pane                         dataSpace;      // the half of the workspace devoted to data
     private Button                       scrnshotButton; // toolbar button to take a screenshot of the data
+    private CheckBox                     checkBox;       // when checked, makes textarea read-only
     private ScatterChart<Number, Number> chart;          // the chart where data will be displayed
     private Button                       displayButton;  // workspace button to display data on the chart
     private TextArea                     textArea;       // text area for new data input
     private boolean                      hasNewText;     // whether or not the text area has any new data since last display (feels unneeded)
     private Label                        displayTitle;   // label for title
+    private Pane                         bottomOptions;  // the option things under the text area
     private NumberAxis xAxis;
     private NumberAxis yAxis;
 
@@ -111,7 +112,9 @@ public final class AppUI extends UITemplate {
         displayTitle.setAlignment(Pos.CENTER);
         textArea = new TextArea();
         displayButton = new Button(manager.getPropertyValue(DISPLAY.name()));
-        dataSpace = new VBox(displayTitle, textArea, displayButton);
+        checkBox = new CheckBox("Read-Only");
+        bottomOptions = new VBox(displayButton, checkBox);
+        dataSpace = new VBox(displayTitle, textArea, bottomOptions);
         chart = new ScatterChart<>(xAxis, yAxis);
         chart.setTitle(manager.getPropertyValue(DATA_VISUALIZATION.name()));
         chart.setPrefSize(windowWidth*0.9, windowHeight*0.66);
@@ -141,8 +144,14 @@ public final class AppUI extends UITemplate {
         });
 
         displayButton.setOnAction(e -> {
-            ((AppUI) applicationTemplate.getUIComponent()).getChart().getData().clear();
-            ((AppData)(applicationTemplate.getDataComponent())).loadData(textArea.getText());
+            if(hasNewText) {
+                ((AppUI) applicationTemplate.getUIComponent()).getChart().getData().clear();
+                ((AppData) (applicationTemplate.getDataComponent())).loadData(textArea.getText());
+            }
+        });
+
+        checkBox.selectedProperty().addListener((observable, oldValue, newValue) ->{
+            textArea.setDisable(newValue);
         });
     }
 }
