@@ -18,6 +18,8 @@ import vilij.propertymanager.PropertyManager;
 import vilij.templates.ApplicationTemplate;
 import vilij.templates.UITemplate;
 
+import java.io.IOException;
+
 import static settings.AppPropertyTypes.*;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.ICONS_RESOURCE_PATH;
@@ -30,7 +32,7 @@ import static vilij.settings.PropertyTypes.ICONS_RESOURCE_PATH;
 public final class AppUI extends UITemplate {
 
     /** The application to which this class of actions belongs. */
-    ApplicationTemplate applicationTemplate;
+    private ApplicationTemplate applicationTemplate;
 
     @SuppressWarnings("FieldCanBeLocal")
     private Pane                         dataSpace;      // the half of the workspace devoted to data
@@ -40,8 +42,6 @@ public final class AppUI extends UITemplate {
     private Button                       displayButton;  // workspace button to display data on the chart
     private TextArea                     textArea;       // text area for new data input
     private boolean                      hasNewText;     // whether or not the text area has any new data since last display (feels unneeded)
-    private Label                        displayTitle;   // label for title
-    private Pane                         bottomOptions;  // the option things under the text area
     private NumberAxis xAxis;
     private NumberAxis yAxis;
 
@@ -54,9 +54,8 @@ public final class AppUI extends UITemplate {
     public TextArea getTextArea(){
         return textArea;
     }
-    public Button getSaveButton(){ return saveButton;}
 
-    public AppUI(Stage primaryStage, ApplicationTemplate applicationTemplate) {
+    AppUI(Stage primaryStage, ApplicationTemplate applicationTemplate) {
         super(primaryStage, applicationTemplate);
         this.applicationTemplate = applicationTemplate;
         workspace = new HBox();
@@ -106,20 +105,29 @@ public final class AppUI extends UITemplate {
     }
 
     private void layout() {
-        displayTitle = new Label(manager.getPropertyValue(TEXT_AREA.name()));
+        Label displayTitle = new Label(manager.getPropertyValue(TEXT_AREA.name()));
         displayTitle.setPrefWidth(windowWidth/2);
-        displayTitle.setFont(new Font(18));
+        displayTitle.setFont(new Font(19));
         displayTitle.setAlignment(Pos.CENTER);
         textArea = new TextArea();
+        textArea.setPrefHeight(windowHeight/3);
         displayButton = new Button(manager.getPropertyValue(DISPLAY.name()));
         checkBox = new CheckBox("Read-Only");
-        bottomOptions = new VBox(displayButton, checkBox);
+        Pane bottomOptions = new VBox(displayButton, checkBox);
         dataSpace = new VBox(displayTitle, textArea, bottomOptions);
         chart = new ScatterChart<>(xAxis, yAxis);
         chart.setTitle(manager.getPropertyValue(DATA_VISUALIZATION.name()));
         chart.setPrefSize(windowWidth*0.9, windowHeight*0.66);
         workspace.getChildren().addAll(dataSpace, chart);
         appPane.getChildren().add(workspace);
+        appPane.getStylesheets().add("stylesheets/datavilijCSS.css");
+    }
+
+    public void enableScreenshotButton(boolean b){
+        scrnshotButton.setDisable(!b);
+    }
+    public void enableSaveButton(boolean b){
+        saveButton.setDisable(!b);
     }
 
     private void setWorkspaceActions() {
@@ -138,8 +146,22 @@ public final class AppUI extends UITemplate {
                         saveButton.setDisable(true);
                     }
                 }
+                AppData data = (AppData)applicationTemplate.getDataComponent();
+                int oldLines = data.getLineCount(oldValue);
+                int newLines = data.getLineCount(newValue);
+                if(data.isOverflow() && newLines < oldLines)
+                    data.transferLines(oldLines-newLines);
             } catch (IndexOutOfBoundsException e) {
                 System.err.println(newValue);
+            }
+        });
+
+        scrnshotButton.setOnAction(e ->{
+            try {
+                ((AppActions) applicationTemplate.getActionComponent()).handleScreenshotRequest();
+            }
+            catch(IOException f){
+                f.printStackTrace();
             }
         });
 
@@ -150,8 +172,6 @@ public final class AppUI extends UITemplate {
             }
         });
 
-        checkBox.selectedProperty().addListener((observable, oldValue, newValue) ->{
-            textArea.setDisable(newValue);
-        });
+        checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> textArea.setDisable(newValue));
     }
 }
