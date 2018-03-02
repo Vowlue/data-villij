@@ -40,6 +40,7 @@ public class AppData implements DataComponent {
         this.applicationTemplate = applicationTemplate;
         manager = applicationTemplate.manager;
         overflow = false;
+        loadedData = "";
     }
 
     public static class InvalidDataPairException extends Exception {
@@ -56,6 +57,7 @@ public class AppData implements DataComponent {
     }
 
     public boolean isOverflow(){return overflow;}
+    public void setOverflow(boolean b){overflow = b;}
 
     @Override
     public void loadData(Path dataFilePath) {
@@ -88,8 +90,15 @@ public class AppData implements DataComponent {
     public void loadData(String dataString) {
         try {
             ((AppUI)applicationTemplate.getUIComponent()).enableScreenshotButton(true);
-            checkString(dataString);
-            processor.processString(dataString);
+            if(overflow) {
+                System.out.println(dataString+loadedData);
+                checkString(dataString+loadedData);
+                processor.processString(dataString+loadedData);
+            }
+            else {
+                checkString(dataString);
+                processor.processString(dataString);
+            }
             displayData();
         }
         catch (Exception e) {
@@ -115,6 +124,9 @@ public class AppData implements DataComponent {
 
     @Override
     public void clear() {
+        overflow = false;
+        if(!loadedData.equals(""))
+            loadedData = "";
         processor.clear();
         ((AppUI)applicationTemplate.getUIComponent()).enableScreenshotButton(false);
     }

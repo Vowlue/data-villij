@@ -143,6 +143,7 @@ public final class AppActions implements ActionComponent {
         return false;
     }
     private void clearAll(){
+        ((AppData)applicationTemplate.getDataComponent()).setOverflow(false);
         applicationTemplate.getUIComponent().clear();
         applicationTemplate.getDataComponent().clear();
         ((AppUI) applicationTemplate.getUIComponent()).getChart().getData().clear();
