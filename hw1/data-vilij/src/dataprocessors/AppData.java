@@ -129,10 +129,6 @@ public class AppData implements DataComponent {
             TextArea displayedTextArea = ((AppUI)applicationTemplate.getUIComponent()).getTextArea();
             displayedTextArea.setText(displayedTextArea.getText()+loadedData.substring(0, loadedData.indexOf("\n")+1));
             loadedData = loadedData.substring(loadedData.indexOf("\n")+1);
-            System.out.println(displayedTextArea.getText());
-            System.out.println("text area above");
-            System.out.println(loadedData);
-            System.out.println("loaded data above");
         }
     }
 

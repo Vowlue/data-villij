@@ -3,6 +3,7 @@ package ui;
 import actions.AppActions;
 import dataprocessors.AppData;
 import javafx.geometry.Pos;
+import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Button;
@@ -38,7 +39,7 @@ public final class AppUI extends UITemplate {
     private Pane                         dataSpace;      // the half of the workspace devoted to data
     private Button                       scrnshotButton; // toolbar button to take a screenshot of the data
     private CheckBox                     checkBox;       // when checked, makes textarea read-only
-    private ScatterChart<Number, Number> chart;          // the chart where data will be displayed
+    private LineChart<Number, Number> chart;          // the chart where data will be displayed
     private Button                       displayButton;  // workspace button to display data on the chart
     private TextArea                     textArea;       // text area for new data input
     private boolean                      hasNewText;     // whether or not the text area has any new data since last display (feels unneeded)
@@ -49,7 +50,7 @@ public final class AppUI extends UITemplate {
     private String ssPath;
     private PropertyManager manager;
 
-    public ScatterChart<Number, Number> getChart() { return chart; }
+    public LineChart<Number, Number> getChart() { return chart; }
 
     public TextArea getTextArea(){
         return textArea;
@@ -115,7 +116,7 @@ public final class AppUI extends UITemplate {
         checkBox = new CheckBox("Read-Only");
         Pane bottomOptions = new VBox(displayButton, checkBox);
         dataSpace = new VBox(displayTitle, textArea, bottomOptions);
-        chart = new ScatterChart<>(xAxis, yAxis);
+        chart = new LineChart<>(xAxis, yAxis);
         chart.setTitle(manager.getPropertyValue(DATA_VISUALIZATION.name()));
         chart.setPrefSize(windowWidth*0.9, windowHeight*0.66);
         workspace.getChildren().addAll(dataSpace, chart);

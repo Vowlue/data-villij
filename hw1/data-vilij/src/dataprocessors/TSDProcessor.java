@@ -1,6 +1,7 @@
 package dataprocessors;
 
 import javafx.geometry.Point2D;
+import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 
 import java.util.*;
@@ -32,8 +33,8 @@ public final class TSDProcessor {
     private Map<String, Point2D> dataPoints;
 
     public TSDProcessor() {
-        dataLabels = new HashMap<>();
-        dataPoints = new HashMap<>();
+        dataLabels = new LinkedHashMap<>();
+        dataPoints = new LinkedHashMap<>();
     }
 
     /**
@@ -70,14 +71,14 @@ public final class TSDProcessor {
      *
      * @param chart the specified chart
      */
-    void toChartData(XYChart<Number, Number> chart) {
+    void toChartData(LineChart<Number, Number> chart) {
         Set<String> labels = new HashSet<>(dataLabels.values());
         for (String label : labels) {
-            XYChart.Series<Number, Number> series = new XYChart.Series<>();
+            LineChart.Series<Number, Number> series = new LineChart.Series<>();
             series.setName(label);
             dataLabels.entrySet().stream().filter(entry -> entry.getValue().equals(label)).forEach(entry -> {
                 Point2D point = dataPoints.get(entry.getKey());
-                series.getData().add(new XYChart.Data<>(point.getX(), point.getY()));
+                series.getData().add(new LineChart.Data<>(point.getX(), point.getY()));
             });
             chart.getData().add(series);
         }
