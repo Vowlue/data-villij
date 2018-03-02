@@ -39,3 +39,9 @@
 .chart-horizontal-zero-line{
     -fx-opacity: 0;
 }
+
+.data:hover{
+    -fx-cursor: hand;
+}
+
+
