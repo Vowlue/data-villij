@@ -28,7 +28,7 @@ public enum AppPropertyTypes {
     SAVE_UNSAVED_WORK_TITLE,
 
     /* application-specific messages */
-    SAVE_UNSAVED_WORK,
+    SAVE_UNSAVED_WORK, LOAD, PNG_EXT,
 
     /* application-specific parameters */
     DATA_FILE_EXT,

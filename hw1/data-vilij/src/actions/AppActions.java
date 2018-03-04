@@ -83,7 +83,7 @@ public final class AppActions implements ActionComponent {
         String dataResourcePath = SEPARATOR+manager.getPropertyValue(DATA_RESOURCE_PATH.name());
         URL dataResourceURL = getClass().getResource(dataResourcePath);
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Load");
+        fileChooser.setTitle(manager.getPropertyValue(LOAD.name()));
         fileChooser.setInitialDirectory(new File(dataResourceURL.getFile()));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(manager.getPropertyValue(DATA_FILE_EXT_DESC.name()), manager.getPropertyValue(ASTERISK_CHARACTER.name()) + manager.getPropertyValue(DATA_FILE_EXT.name())));
         File loaded = fileChooser.showOpenDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
@@ -114,7 +114,7 @@ public final class AppActions implements ActionComponent {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(manager.getPropertyValue(PNG.name()), manager.getPropertyValue(ASTERISK_CHARACTER.name()) + ".png"));
         File snapshot = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
         if(snapshot != null)
-            ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", snapshot);
+            ImageIO.write(SwingFXUtils.fromFXImage(image, null), manager.getPropertyValue(PNG_EXT.name()), snapshot);
     }
 
     /**

@@ -4,6 +4,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Tooltip;
+import vilij.propertymanager.PropertyManager;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
