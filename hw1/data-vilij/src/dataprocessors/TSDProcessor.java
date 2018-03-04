@@ -1,5 +1,6 @@
 package dataprocessors;
 
+import com.sun.javafx.charts.Legend;
 import javafx.geometry.Point2D;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
@@ -8,6 +9,7 @@ import vilij.propertymanager.PropertyManager;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 /**
