@@ -6,15 +6,17 @@ functionality within the main workspace. -->
     <property_list>
         <!-- RESOURCE FILES AND FOLDERS -->
         <property name="DATA_RESOURCE_PATH" value="data"/>
+        <property name="CSS_PATH" value="stylesheets/datavilijCSS.css"/>
 
         <!-- IDENTIFICATION CHARACTERS -->
-        <property name="ANNOTATION_CHARACTER" value="@"/>
         <property name="ASTERISK_CHARACTER" value="*"/>
 
         <!-- DV STRING CONSTANTS -->
         <property name="DISPLAY" value="Display"/>
         <property name="DATA_VISUALIZATION" value="Data Visualization"/>
         <property name="EXIT_WARNING" value="Exit Warning"/>
+        <property name="READ_ONLY" value="Read-Only"/>
+        <property name="PNG" value="Portable Network Graphics file"/>
 
         <!-- USER INTERFACE ICON FILES -->
         <property name="SCREENSHOT_ICON" value="screenshot.png"/>
@@ -25,10 +27,15 @@ functionality within the main workspace. -->
         <!-- WARNING MESSAGES -->
         <property name="EXIT_WHILE_RUNNING_WARNING"
                   value="An algorithm is running. If you exit now, all unsaved changes will be lost. Are you sure?"/>
+        <property name="TOO_MUCH_DATA" value="Too Many Lines"/>
+        <property name="MANY_LINES_1" value="Loaded data consists of "/>
+        <property name="MANY_LINES_2" value=" lines. Showing only the first 10 in the text area."/>
 
         <!-- ERROR MESSAGES -->
-        <property name="RESOURCE_SUBDIR_NOT_FOUND" value="Directory not found under resources."/>
         <property name="DATA_FORMAT_ERROR_2" value="Your data should be tab-separated into 3 sections of a name '@x', a label 'label' and your x and y coordinates 'x,y'."/>
+        <property name="SCREENSHOT_ERROR_TITLE" value="Screenshot Error"/>
+        <property name="SCREENSHOT_ERROR_MSG" value="Screenshot could not be saved to this directory."/>
+        <property name="ERROR_THIS_LINE" value="Error on line "/>
 
         <!-- APPLICATION-SPECIFIC MESSAGE TITLES -->
         <property name="SAVE_UNSAVED_WORK_TITLE" value="Save Current Work"/>

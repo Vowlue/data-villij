@@ -5,7 +5,6 @@ import dataprocessors.AppData;
 import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -15,6 +14,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import vilij.components.Dialog;
 import vilij.propertymanager.PropertyManager;
 import vilij.templates.ApplicationTemplate;
 import vilij.templates.UITemplate;
@@ -39,7 +39,7 @@ public final class AppUI extends UITemplate {
     private Pane                         dataSpace;      // the half of the workspace devoted to data
     private Button                       scrnshotButton; // toolbar button to take a screenshot of the data
     private CheckBox                     checkBox;       // when checked, makes textarea read-only
-    private LineChart<Number, Number> chart;          // the chart where data will be displayed
+    private LineChart<Number, Number>    chart;          // the chart where data will be displayed
     private Button                       displayButton;  // workspace button to display data on the chart
     private TextArea                     textArea;       // text area for new data input
     private boolean                      hasNewText;     // whether or not the text area has any new data since last display (feels unneeded)
@@ -113,15 +113,16 @@ public final class AppUI extends UITemplate {
         textArea = new TextArea();
         textArea.setPrefHeight(windowHeight/3);
         displayButton = new Button(manager.getPropertyValue(DISPLAY.name()));
-        checkBox = new CheckBox("Read-Only");
+        checkBox = new CheckBox(manager.getPropertyValue(READ_ONLY.name()));
         Pane bottomOptions = new VBox(displayButton, checkBox);
         dataSpace = new VBox(displayTitle, textArea, bottomOptions);
         chart = new LineChart<>(xAxis, yAxis);
         chart.setTitle(manager.getPropertyValue(DATA_VISUALIZATION.name()));
         chart.setPrefSize(windowWidth*0.9, windowHeight*0.66);
+        chart.setLegendVisible(false);
         workspace.getChildren().addAll(dataSpace, chart);
         appPane.getChildren().add(workspace);
-        appPane.getStylesheets().add("stylesheets/datavilijCSS.css");
+        appPane.getStylesheets().add(manager.getPropertyValue(CSS_PATH.name()));
     }
 
     public void enableScreenshotButton(boolean b){
@@ -136,7 +137,7 @@ public final class AppUI extends UITemplate {
             try {
                 if (!newValue.equals(oldValue)) {
                     if (!newValue.isEmpty()) {
-                        ((AppActions) applicationTemplate.getActionComponent()).setIsSaved(false);
+                        ((AppActions)applicationTemplate.getActionComponent()).setIsSaved(false);
                         if (newValue.charAt(newValue.length() - 1) == '\n')
                             hasNewText = true;
                         newButton.setDisable(false);
@@ -147,11 +148,10 @@ public final class AppUI extends UITemplate {
                         saveButton.setDisable(true);
                     }
                 }
-                AppData data = (AppData)applicationTemplate.getDataComponent();
-                int oldLines = data.getLineCount(oldValue);
-                int newLines = data.getLineCount(newValue);
-                if(data.isOverflow() && newLines < oldLines)
-                    data.transferLines(oldLines-newLines);
+                int oldLines = ((AppData)applicationTemplate.getDataComponent()).getLineCount(oldValue);
+                int newLines = ((AppData)applicationTemplate.getDataComponent()).getLineCount(newValue);
+                if(((AppData)applicationTemplate.getDataComponent()).isOverflow() && newLines < oldLines)
+                    ((AppData)applicationTemplate.getDataComponent()).transferLines(oldLines-newLines);
             } catch (IndexOutOfBoundsException e) {
                 System.err.println(newValue);
             }
@@ -159,17 +159,18 @@ public final class AppUI extends UITemplate {
 
         scrnshotButton.setOnAction(e ->{
             try {
-                ((AppActions) applicationTemplate.getActionComponent()).handleScreenshotRequest();
+                ((AppActions)applicationTemplate.getActionComponent()).handleScreenshotRequest();
             }
             catch(IOException f){
-                f.printStackTrace();
+                applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(SCREENSHOT_ERROR_TITLE.name()), manager.getPropertyValue(SCREENSHOT_ERROR_MSG.name()));
             }
         });
 
         displayButton.setOnAction(e -> {
             if(hasNewText) {
-                ((AppUI) applicationTemplate.getUIComponent()).getChart().getData().clear();
-                ((AppData) (applicationTemplate.getDataComponent())).loadData(textArea.getText());
+                applicationTemplate.getDataComponent().clear();
+                getChart().getData().clear();
+                ((AppData)applicationTemplate.getDataComponent()).loadData(textArea.getText());
             }
         });
 

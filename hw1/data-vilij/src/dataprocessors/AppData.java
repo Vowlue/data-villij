@@ -17,8 +17,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static settings.AppPropertyTypes.DATA_FORMAT_ERROR_2;
+import static settings.AppPropertyTypes.*;
 import static vilij.settings.PropertyTypes.LOAD_ERROR_TITLE;
+import static vilij.settings.PropertyTypes.SAVE_ERROR_TITLE;
 
 /**
  * This is the concrete application-specific implementation of the data component defined by the Vilij framework.
@@ -55,6 +56,12 @@ public class AppData implements DataComponent {
             super(DATA_ERROR_MSG + occurence);
         }
     }
+    public static class InvalidFormatException extends Exception {
+        private static final String DATA_ERROR_MSG = "The format of this line is completely wrong";
+        InvalidFormatException() {
+            super(DATA_ERROR_MSG );
+        }
+    }
 
     public boolean isOverflow(){return overflow;}
     public void setOverflow(boolean b){overflow = b;}
@@ -73,12 +80,12 @@ public class AppData implements DataComponent {
             checkString(loadedData);
             if(getLineCount(loadedData) > 10){
                 transferLines(10);
-                loadData(((AppUI) applicationTemplate.getUIComponent()).getTextArea().getText()+loadedData);
+                loadData(((AppUI)applicationTemplate.getUIComponent()).getTextArea().getText()+loadedData);
                 overflow = true;
-                applicationTemplate.getDialog(Dialog.DialogType.ERROR).show("Data Too Numerous", "Loaded data consists of "+(getLineCount(loadedData)+10)+" lines. Showing only the first 10 in the text area.");
+                applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(TOO_MUCH_DATA.name()), manager.getPropertyValue(MANY_LINES_1.name())+(getLineCount(loadedData)+10)+manager.getPropertyValue(MANY_LINES_2.name()));
             }
             else {
-                ((AppUI) applicationTemplate.getUIComponent()).getTextArea().setText(loadedData);
+                ((AppUI)applicationTemplate.getUIComponent()).getTextArea().setText(loadedData);
                 loadData(loadedData);
             }
         }
@@ -109,16 +116,20 @@ public class AppData implements DataComponent {
     @Override
     public void saveData(Path dataFilePath) {
         try{
-            String data = ((AppUI) applicationTemplate.getUIComponent()).getTextArea().getText();
+            String data = ((AppUI)applicationTemplate.getUIComponent()).getTextArea().getText();
+            checkString(data);
             PrintWriter writer = new PrintWriter(Files.newOutputStream(dataFilePath));
             data = data.replaceAll("\n", System.lineSeparator());
-            writer.write(data);
+            if(overflow)
+                writer.write(data+loadedData);
+            else
+                writer.write(data);
             writer.close();
-            ((AppUI) applicationTemplate.getUIComponent()).enableSaveButton(false);
+            ((AppUI)applicationTemplate.getUIComponent()).enableSaveButton(false);
             ((AppActions)applicationTemplate.getActionComponent()).setIsSaved(true);
         }
         catch (Exception e) {
-            e.printStackTrace();
+            applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(SAVE_ERROR_TITLE.name()), manager.getPropertyValue(DATA_FORMAT_ERROR_2.name())+"\n"+e.getMessage());
         }
     }
 
@@ -132,7 +143,7 @@ public class AppData implements DataComponent {
     }
 
     private void displayData() {
-        processor.toChartData(((AppUI) applicationTemplate.getUIComponent()).getChart());
+        processor.toChartData(((AppUI)applicationTemplate.getUIComponent()).getChart());
     }
 
     public void transferLines(int lines){
@@ -161,16 +172,16 @@ public class AppData implements DataComponent {
             dataArray.add(line.split("\t"));
         }
         ArrayList<String> names = new ArrayList<>();
-        ArrayList<String> labels = new ArrayList<>();
         for(int i = 0; i<dataArray.size(); i++){
             try {
                 String[] line = dataArray.get(i);
+                if(line.length != 3)
+                    throw new InvalidFormatException();
                 names.add(checkDuplicate(checkName(line[0]), names));
-                labels.add(checkDuplicate(line[1], labels));
                 checkPoints(line[2]);
             }
             catch(Exception e){
-                throw new IOException("Error on line "+(i+1)+": "+e.getMessage()+".");
+                throw new IOException(manager.getPropertyValue(ERROR_THIS_LINE.name())+(i+1)+": "+e.getMessage()+".");
             }
         }
     }
@@ -181,6 +192,7 @@ public class AppData implements DataComponent {
         return name;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void checkPoints(String pair) throws InvalidDataPairException{
         try {
             String[] pairArray = pair.split(",");

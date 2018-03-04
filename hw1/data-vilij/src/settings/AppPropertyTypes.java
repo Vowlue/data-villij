@@ -10,10 +10,10 @@ package settings;
 public enum AppPropertyTypes {
 
     /* resource files and folders */
-    DATA_RESOURCE_PATH,
+    DATA_RESOURCE_PATH, CSS_PATH,
 
     /* string constants */
-    ASTERISK_CHARACTER, ANNOTATION_CHARACTER, DISPLAY, DATA_VISUALIZATION,
+    ASTERISK_CHARACTER, DISPLAY, DATA_VISUALIZATION, READ_ONLY, PNG,
 
     /* user interface icon file names */
     SCREENSHOT_ICON,
@@ -22,7 +22,7 @@ public enum AppPropertyTypes {
     SCREENSHOT_TOOLTIP,
 
     /* error messages */
-    RESOURCE_SUBDIR_NOT_FOUND, DATA_FORMAT_ERROR_2,
+    DATA_FORMAT_ERROR_2, SCREENSHOT_ERROR_TITLE, SCREENSHOT_ERROR_MSG, TOO_MUCH_DATA, MANY_LINES_1, MANY_LINES_2, ERROR_THIS_LINE,
 
     /* application-specific message titles */
     SAVE_UNSAVED_WORK_TITLE,
@@ -33,6 +33,5 @@ public enum AppPropertyTypes {
     /* application-specific parameters */
     DATA_FILE_EXT,
     DATA_FILE_EXT_DESC,
-    TEXT_AREA,
-    SPECIFIED_FILE
+    TEXT_AREA
 }

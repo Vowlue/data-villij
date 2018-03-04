@@ -3,6 +3,7 @@ package dataprocessors;
 import javafx.geometry.Point2D;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Tooltip;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,11 +21,11 @@ import java.util.stream.Stream;
  */
 public final class TSDProcessor {
 
-    public static class InvalidDataNameException extends Exception {
+    static class InvalidDataNameException extends Exception {
 
         private static final String NAME_ERROR_MSG = "All data instance names must start with the @ character";
 
-        public InvalidDataNameException(String name) {
+        InvalidDataNameException(String name) {
             super(String.format("Invalid name '%s'. " + NAME_ERROR_MSG, name));
         }
     }
@@ -32,9 +33,9 @@ public final class TSDProcessor {
     private Map<String, String>  dataLabels;
     private Map<String, Point2D> dataPoints;
 
-    public TSDProcessor() {
-        dataLabels = new LinkedHashMap<>();
-        dataPoints = new LinkedHashMap<>();
+    TSDProcessor() {
+        dataLabels = new HashMap<>();
+        dataPoints = new HashMap<>();
     }
 
     /**
@@ -78,10 +79,42 @@ public final class TSDProcessor {
             series.setName(label);
             dataLabels.entrySet().stream().filter(entry -> entry.getValue().equals(label)).forEach(entry -> {
                 Point2D point = dataPoints.get(entry.getKey());
-                series.getData().add(new LineChart.Data<>(point.getX(), point.getY()));
+                LineChart.Data<Number, Number> data = new LineChart.Data<>(point.getX(), point.getY());
+                series.getData().add(data);
             });
             chart.getData().add(series);
+            for (LineChart.Data<Number, Number> data: series.getData()) {
+                Tooltip.install(data.getNode(), new Tooltip(label));
+                data.getNode().getStyleClass().add("data");
+            }
+            addAverageLine(chart);
         }
+    }
+
+    private void addAverageLine(LineChart<Number, Number> chart){
+        LineChart.Series<Number, Number> avgSeries = new LineChart.Series<>();
+        double minX = Double.MIN_VALUE;
+        double maxX = Double.MAX_VALUE;
+        double totalY = 0;
+        for(Map.Entry<String, Point2D> entry: dataPoints.entrySet()){
+            Point2D point = entry.getValue();
+            double x = point.getX();
+            double y = point.getY();
+            if(x > minX)
+                minX = x;
+            if(x < maxX)
+                maxX = x;
+            totalY += y;
+        }
+        double averageY = totalY/((double)dataPoints.size());
+        avgSeries.getData().add(new LineChart.Data<>(minX, averageY));
+        avgSeries.getData().add(new LineChart.Data<>(maxX, averageY));
+        chart.getData().add(avgSeries);
+        avgSeries.setName("Average");
+        for(LineChart.Data<Number,Number> data: avgSeries.getData()){
+            data.getNode().setVisible(false);
+        }
+        avgSeries.getNode().setId("average");
     }
 
     void clear() {

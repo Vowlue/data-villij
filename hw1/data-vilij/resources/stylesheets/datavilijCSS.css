@@ -1,6 +1,6 @@
 .chart-plot-background {
-    -fx-border-color: black;
-    -fx-border-width: 4;
+    -fx-border-color: linear-gradient(#5f2c82, #49a09d);
+    -fx-border-width: 5;
 }
 .axis:top {
     -fx-border-color: transparent;
@@ -25,11 +25,11 @@
     -fx-stroke: transparent;
 }
 .axis-tick-mark {
-    -fx-stroke: #660070;
+    -fx-stroke: linear-gradient(#EC6F66, #F3A183);
     -fx-stroke-width: 3;
 }
 .axis {
-    -fx-tick-label-fill: #3366FF;
+    -fx-tick-label-fill: brown;
     -fx-tick-length: 20;
     -fx-minor-tick-length: 10;
 }
@@ -39,9 +39,14 @@
 .chart-horizontal-zero-line{
     -fx-opacity: 0;
 }
-
+.chart-series-line{
+    -fx-stroke: transparent;
+}
 .data:hover{
     -fx-cursor: hand;
+}
+#average{
+    -fx-stroke: linear-gradient(to right, red,orange,yellow,green,blue,indigo,violet);
 }
 
 

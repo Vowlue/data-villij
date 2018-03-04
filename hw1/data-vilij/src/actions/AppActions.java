@@ -35,6 +35,7 @@ public final class AppActions implements ActionComponent {
 
     /** Path to the data file currently active. */
     private Path dataFilePath;
+
     private PropertyManager manager;
     private boolean isSaved;
 
@@ -54,7 +55,7 @@ public final class AppActions implements ActionComponent {
     @Override
     public void handleNewRequest() {
         try {
-            if (isSaved || promptToSave()) {
+            if (isSaved || dataFilePath != null || promptToSave()) {
                 clearAll();
                 dataFilePath = null;
             }
@@ -67,7 +68,7 @@ public final class AppActions implements ActionComponent {
     @Override
     public void handleSaveRequest() {
         try {
-            if(isSaved)
+            if(dataFilePath != null)
                 applicationTemplate.getDataComponent().saveData(dataFilePath);
             else
                 saveFile();
@@ -89,8 +90,7 @@ public final class AppActions implements ActionComponent {
         if(loaded != null){
             dataFilePath = loaded.toPath();
             applicationTemplate.getDataComponent().loadData(dataFilePath);
-            isSaved = true;
-            ((AppUI) applicationTemplate.getUIComponent()).enableSaveButton(false);
+            ((AppUI)applicationTemplate.getUIComponent()).enableSaveButton(false);
         }
     }
 
@@ -109,9 +109,9 @@ public final class AppActions implements ActionComponent {
         String dataResourcePath = SEPARATOR+manager.getPropertyValue(DATA_RESOURCE_PATH.name());
         URL dataResourceURL = getClass().getResource(dataResourcePath);
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save");
+        fileChooser.setTitle(manager.getPropertyValue(SAVE_WORK_TITLE.name()));
         fileChooser.setInitialDirectory(new File(dataResourceURL.getFile()));
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Portable Network Graphics file", manager.getPropertyValue(ASTERISK_CHARACTER.name()) + ".png"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(manager.getPropertyValue(PNG.name()), manager.getPropertyValue(ASTERISK_CHARACTER.name()) + ".png"));
         File snapshot = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
         if(snapshot != null)
             ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", snapshot);
@@ -146,7 +146,7 @@ public final class AppActions implements ActionComponent {
         ((AppData)applicationTemplate.getDataComponent()).setOverflow(false);
         applicationTemplate.getUIComponent().clear();
         applicationTemplate.getDataComponent().clear();
-        ((AppUI) applicationTemplate.getUIComponent()).getChart().getData().clear();
+        ((AppUI)applicationTemplate.getUIComponent()).getChart().getData().clear();
     }
 
     private void saveFile() throws IOException{
@@ -168,7 +168,7 @@ public final class AppActions implements ActionComponent {
                 dataFilePath = saved.toPath();
                 applicationTemplate.getDataComponent().saveData(dataFilePath);
                 isSaved = true;
-                ((AppUI) applicationTemplate.getUIComponent()).enableSaveButton(false);
+                ((AppUI)applicationTemplate.getUIComponent()).enableSaveButton(false);
             }
         }
     }
