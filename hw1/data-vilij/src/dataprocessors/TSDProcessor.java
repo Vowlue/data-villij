@@ -2,10 +2,14 @@ package dataprocessors;
 
 import javafx.geometry.Point2D;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Tooltip;
 
-import java.util.*;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
@@ -17,9 +21,8 @@ import java.util.stream.Stream;
  * A sample file in this format has been provided in the application's <code>resources/data</code> folder.
  *
  * @author Ritwik Banerjee
- * @see XYChart
  */
-public final class TSDProcessor {
+final class TSDProcessor {
 
     static class InvalidDataNameException extends Exception {
 
@@ -30,7 +33,7 @@ public final class TSDProcessor {
         }
     }
 
-    private Map<String, String>  dataLabels;
+    private Map<String, String> dataLabels;
     private Map<String, Point2D> dataPoints;
 
     TSDProcessor() {
@@ -44,7 +47,7 @@ public final class TSDProcessor {
      * @param tsdString the input data provided as a single {@link String}
      * @throws Exception if the input string does not follow the <code>.tsd</code> data format
      */
-    public void processString(String tsdString) throws Exception {
+    void processString(String tsdString) throws Exception {
         AtomicBoolean hadAnError   = new AtomicBoolean(false);
         StringBuilder errorMessage = new StringBuilder();
         Stream.of(tsdString.split("\n"))
@@ -72,7 +75,7 @@ public final class TSDProcessor {
      *
      * @param chart the specified chart
      */
-    void toChartData(LineChart<Number, Number> chart) {
+        void toChartData(LineChart<Number, Number> chart) {
         Set<String> labels = new HashSet<>(dataLabels.values());
         for (String label : labels) {
             LineChart.Series<Number, Number> series = new LineChart.Series<>();
