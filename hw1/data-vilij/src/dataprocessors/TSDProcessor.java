@@ -90,11 +90,10 @@ final class TSDProcessor {
                 Tooltip.install(data.getNode(), new Tooltip(label));
                 data.getNode().getStyleClass().add("data");
             }
-            addAverageLine(chart);
         }
     }
 
-    private void addAverageLine(LineChart<Number, Number> chart){
+    /*private void addAverageLine(LineChart<Number, Number> chart){
         LineChart.Series<Number, Number> avgSeries = new LineChart.Series<>();
         double minX = Double.MIN_VALUE;
         double maxX = Double.MAX_VALUE;
@@ -118,7 +117,7 @@ final class TSDProcessor {
             data.getNode().setVisible(false);
         }
         avgSeries.getNode().setId("average");
-    }
+    }*/
 
     void clear() {
         dataPoints.clear();

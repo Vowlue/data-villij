@@ -1,6 +1,5 @@
-package classification;
+package algorithms;
 
-import algorithms.Classifier;
 import data.DataSet;
 
 import java.io.IOException;

@@ -37,7 +37,6 @@ public final class AppActions implements ActionComponent {
     private Path dataFilePath;
 
     private PropertyManager manager;
-    private boolean isSaved;
 
     private static final String SEPARATOR = "/";
 
@@ -45,24 +44,14 @@ public final class AppActions implements ActionComponent {
         this.applicationTemplate = applicationTemplate;
         manager = applicationTemplate.manager;
         dataFilePath = null;
-        isSaved = false;
-    }
-
-    public void setIsSaved(boolean b){
-        isSaved = b;
     }
 
     @Override
     public void handleNewRequest() {
-        try {
-            if (isSaved || dataFilePath != null || promptToSave()) {
-                clearAll();
-                dataFilePath = null;
-            }
-        }
-        catch (IOException e){
-            applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(SAVE_ERROR_TITLE.name()), manager.getPropertyValue(DATA_FORMAT_ERROR_2.name())+"\n"+e.getMessage());
-        }
+        clearAll();
+        ((AppUI)applicationTemplate.getUIComponent()).getTextArea().setVisible(true);
+        ((AppUI)applicationTemplate.getUIComponent()).getTextArea().setDisable(false);
+        ((AppUI)applicationTemplate.getUIComponent()).getToggleButton().setVisible(true);
     }
 
     @Override
@@ -79,7 +68,6 @@ public final class AppActions implements ActionComponent {
 
     @Override
     public void handleLoadRequest() {
-        clearAll();
         String dataResourcePath = SEPARATOR+manager.getPropertyValue(DATA_RESOURCE_PATH.name());
         URL dataResourceURL = getClass().getResource(dataResourcePath);
         FileChooser fileChooser = new FileChooser();
@@ -143,10 +131,10 @@ public final class AppActions implements ActionComponent {
         return false;
     }
     private void clearAll(){
-        ((AppData)applicationTemplate.getDataComponent()).setOverflow(false);
         applicationTemplate.getUIComponent().clear();
         applicationTemplate.getDataComponent().clear();
         ((AppUI)applicationTemplate.getUIComponent()).getChart().getData().clear();
+        applicationTemplate.getDataComponent().clear();
     }
 
     private void saveFile() throws IOException{
@@ -167,9 +155,12 @@ public final class AppActions implements ActionComponent {
             if (saved != null) {
                 dataFilePath = saved.toPath();
                 applicationTemplate.getDataComponent().saveData(dataFilePath);
-                isSaved = true;
                 ((AppUI)applicationTemplate.getUIComponent()).enableSaveButton(false);
             }
         }
+    }
+
+    public Path getDataPath() {
+        return dataFilePath;
     }
 }
