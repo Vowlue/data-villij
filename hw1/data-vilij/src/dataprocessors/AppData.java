@@ -1,6 +1,8 @@
 package dataprocessors;
 
 import actions.AppActions;
+import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import ui.AppUI;
 import vilij.components.DataComponent;
@@ -34,13 +36,17 @@ public class AppData implements DataComponent {
     private PropertyManager manager;
 
     private String loadedData;
-    private boolean overflow;
+
+    private int instances;
+    private int labels;
+    private String labelNames;
+    private boolean nullInData;
+    private boolean dataIsValid;
 
     public AppData(ApplicationTemplate applicationTemplate) {
         this.processor = new TSDProcessor();
         this.applicationTemplate = applicationTemplate;
         manager = applicationTemplate.manager;
-        overflow = false;
         loadedData = "";
     }
 
@@ -57,18 +63,18 @@ public class AppData implements DataComponent {
         }
     }
     public static class InvalidFormatException extends Exception {
-        private static final String DATA_ERROR_MSG = "The format of this line is completely wrong";
+        private static final String DATA_ERROR_MSG = "This line is malformatted";
         InvalidFormatException() {
             super(DATA_ERROR_MSG );
         }
     }
 
-    public boolean isOverflow(){return overflow;}
-    public void setOverflow(boolean b){overflow = b;}
+    public boolean isDataIsValid(){ return dataIsValid; }
 
     @Override
     public void loadData(Path dataFilePath) {
         try{
+            clear();
             BufferedReader reader = new BufferedReader(new FileReader(dataFilePath.toString()));
             StringBuilder buffer;
             buffer = new StringBuilder();
@@ -77,17 +83,14 @@ public class AppData implements DataComponent {
                 buffer.append(line).append("\n");
             }
             loadedData = buffer.toString();
-            checkString(loadedData);
-            if(getLineCount(loadedData) > 10){
-                transferLines(10);
-                loadData(((AppUI)applicationTemplate.getUIComponent()).getTextArea().getText()+loadedData);
-                overflow = true;
-                applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(TOO_MUCH_DATA.name()), manager.getPropertyValue(MANY_LINES_1.name())+(getLineCount(loadedData)+10)+manager.getPropertyValue(MANY_LINES_2.name()));
-            }
-            else {
-                ((AppUI)applicationTemplate.getUIComponent()).getTextArea().setText(loadedData);
-                loadData(loadedData);
-            }
+            TextArea textArea = ((AppUI)applicationTemplate.getUIComponent()).getTextArea();
+            transferLines(loadedData, 10);
+            if(getLineCount(loadedData) > 10)
+                applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(TOO_MUCH_DATA.name()), manager.getPropertyValue(MANY_LINES_1.name())+(getLineCount(loadedData)-1)+manager.getPropertyValue(MANY_LINES_2.name()));
+            textArea.setDisable(true);
+            textArea.setVisible(true);
+            loadData(loadedData);
+            ((AppUI)applicationTemplate.getUIComponent()).getSaveButton().setDisable(true);
         }
         catch (Exception e){
             applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(LOAD_ERROR_TITLE.name()), manager.getPropertyValue(DATA_FORMAT_ERROR_2.name())+"\n"+e.getMessage());
@@ -96,19 +99,15 @@ public class AppData implements DataComponent {
 
     public void loadData(String dataString) {
         try {
+            dataIsValid = false;
             ((AppUI)applicationTemplate.getUIComponent()).enableScreenshotButton(true);
-            if(overflow) {
-                System.out.println(dataString+loadedData);
-                checkString(dataString+loadedData);
-                processor.processString(dataString+loadedData);
-            }
-            else {
-                checkString(dataString);
-                processor.processString(dataString);
-            }
+            checkString(dataString);
+            processor.processString(dataString);
             displayData();
+            showMetaData();
         }
         catch (Exception e) {
+            if(((AppUI)applicationTemplate.getUIComponent()).getTextArea().isDisabled()) ((AppUI)applicationTemplate.getUIComponent()).getTextArea().setVisible(false);
             applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(LOAD_ERROR_TITLE.name()), manager.getPropertyValue(DATA_FORMAT_ERROR_2.name())+"\n"+e.getMessage());
         }
     }
@@ -120,13 +119,9 @@ public class AppData implements DataComponent {
             checkString(data);
             PrintWriter writer = new PrintWriter(Files.newOutputStream(dataFilePath));
             data = data.replaceAll("\n", System.lineSeparator());
-            if(overflow)
-                writer.write(data+loadedData);
-            else
-                writer.write(data);
+            writer.write(data);
             writer.close();
             ((AppUI)applicationTemplate.getUIComponent()).enableSaveButton(false);
-            ((AppActions)applicationTemplate.getActionComponent()).setIsSaved(true);
         }
         catch (Exception e) {
             applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(SAVE_ERROR_TITLE.name()), manager.getPropertyValue(DATA_FORMAT_ERROR_2.name())+"\n"+e.getMessage());
@@ -135,23 +130,51 @@ public class AppData implements DataComponent {
 
     @Override
     public void clear() {
-        overflow = false;
         if(!loadedData.equals(""))
             loadedData = "";
         processor.clear();
-        ((AppUI)applicationTemplate.getUIComponent()).enableScreenshotButton(false);
+        applicationTemplate.getUIComponent().clear();
+        clearMetaData();
     }
 
     private void displayData() {
         processor.toChartData(((AppUI)applicationTemplate.getUIComponent()).getChart());
     }
 
-    public void transferLines(int lines){
-        while(!loadedData.equals("") && lines > 0){
+    private void showMetaData(){
+        AppUI appUI = ((AppUI)applicationTemplate.getUIComponent());
+        Path dataFilePath = ((AppActions)applicationTemplate.getActionComponent()).getDataPath();
+        String path = (dataFilePath == null)? "the user" : dataFilePath.toString();
+        appUI.getLabel().setText("There are "+instances+" instances with "+labels+" labels loaded from "+path+". The labels are: \n"+labelNames);
+        ComboBox<String> comboBox = appUI.getComboBox();
+        comboBox.getItems().clear();
+        comboBox.setPromptText("Choose an algorithm.");
+        comboBox.getItems().add("Clustering");
+        if((nullInData && labels > 2) || (!nullInData && labels > 1))
+            comboBox.getItems().add("Classification");
+        comboBox.setOnAction(e -> {
+            appUI.hideComboBox();
+            System.out.println(comboBox.getItems());
+            switch(comboBox.getValue()) {//wtf is wrong with this??
+                case "Classification": appUI.showClassification(); return;
+                default: appUI.showClustering(); return;
+            }
+        });
+        comboBox.setVisible(true);
+    }
+
+    private void clearMetaData(){
+        AppUI appUI = ((AppUI)applicationTemplate.getUIComponent());
+        appUI.getComboBox().setVisible(false);
+        appUI.getLabel().setText("");
+    }
+
+    public void transferLines(String data, int lines){
+        while(!data.equals("") && lines > 0){
             lines--;
             TextArea displayedTextArea = ((AppUI)applicationTemplate.getUIComponent()).getTextArea();
-            displayedTextArea.setText(displayedTextArea.getText()+loadedData.substring(0, loadedData.indexOf("\n")+1));
-            loadedData = loadedData.substring(loadedData.indexOf("\n")+1);
+            displayedTextArea.setText(displayedTextArea.getText()+data.substring(0, data.indexOf("\n")+1));
+            data = data.substring(data.indexOf("\n")+1);
         }
     }
 
@@ -166,24 +189,39 @@ public class AppData implements DataComponent {
 
     //this method will give the error line by parsing the string for the error
     public void checkString(String dataString) throws IOException{
+        instances = 0;
+        labels = 0;
+        labelNames = "";
+        StringBuilder ln = new StringBuilder();
         ArrayList<String[]> dataArray = new ArrayList<>();
         String[] lines = dataString.split("\n");
         for(String line: lines){
             dataArray.add(line.split("\t"));
         }
-        ArrayList<String> names = new ArrayList<>();
+        ArrayList<String> instanceList = new ArrayList<>();
+        ArrayList<String> labelList = new ArrayList<>();
         for(int i = 0; i<dataArray.size(); i++){
             try {
                 String[] line = dataArray.get(i);
                 if(line.length != 3)
                     throw new InvalidFormatException();
-                names.add(checkDuplicate(checkName(line[0]), names));
+                instanceList.add(checkDuplicate(checkName(line[0]), instanceList));
+                instances++;
+                if(!labelList.contains(line[1])) {
+                    labelList.add(line[1]);
+                    if(line[1].equals(""))
+                        nullInData = true;
+                    labels++;
+                    ln.append("- ").append(line[1]).append("\n");
+                }
                 checkPoints(line[2]);
             }
             catch(Exception e){
                 throw new IOException(manager.getPropertyValue(ERROR_THIS_LINE.name())+(i+1)+": "+e.getMessage()+".");
             }
         }
+        dataIsValid = true;
+        labelNames = ln.toString();
     }
 
     private String checkName(String name) throws TSDProcessor.InvalidDataNameException {

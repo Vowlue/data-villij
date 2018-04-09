@@ -2,17 +2,14 @@ package ui;
 
 import actions.AppActions;
 import dataprocessors.AppData;
-import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import vilij.components.Dialog;
 import vilij.propertymanager.PropertyManager;
@@ -40,9 +37,13 @@ public final class AppUI extends UITemplate {
     private Button                       scrnshotButton; // toolbar button to take a screenshot of the data
     private CheckBox                     checkBox;       // when checked, makes textarea read-only
     private LineChart<Number, Number>    chart;          // the chart where data will be displayed
-    private Button                       displayButton;  // workspace button to display data on the chart
+    private Button                       toggleButton;  // workspace button to display data on the chart
     private TextArea                     textArea;       // text area for new data input
     private boolean                      hasNewText;     // whether or not the text area has any new data since last display (feels unneeded)
+    private Label                        label;
+    private ComboBox<String>             comboBox;
+    private Pane                         classificationSpace;
+    private Pane                         clusteringSpace;
     private NumberAxis xAxis;
     private NumberAxis yAxis;
 
@@ -55,6 +56,16 @@ public final class AppUI extends UITemplate {
     public TextArea getTextArea(){
         return textArea;
     }
+
+    public Label getLabel() { return label; }
+
+    public ComboBox<String> getComboBox() { return comboBox; }
+
+    public Button getToggleButton() { return toggleButton; }
+
+    public Button getSaveButton() { return saveButton; }
+
+    public Pane getDataSpace() { return dataSpace; }
 
     AppUI(Stage primaryStage, ApplicationTemplate applicationTemplate) {
         super(primaryStage, applicationTemplate);
@@ -101,24 +112,47 @@ public final class AppUI extends UITemplate {
     @Override
     public void clear() {
         textArea.clear();
-        newButton.setDisable(true);
+        chart.getData().clear();
         saveButton.setDisable(true);
+        scrnshotButton.setDisable(true);
+        toggleButton.setVisible(false);
+        showComboBox();
+        comboBox.setVisible(false);
+        hideClassification();
+        hideClustering();
     }
 
     private void layout() {
-        Label displayTitle = new Label(manager.getPropertyValue(TEXT_AREA.name()));
-        displayTitle.setPrefWidth(windowWidth/2);
-        displayTitle.setFont(new Font(19));
-        displayTitle.setAlignment(Pos.CENTER);
+        newButton.setDisable(false);
+        scrnshotButton.setDisable(true);
+
         textArea = new TextArea();
         textArea.setPrefHeight(windowHeight/3);
-        displayButton = new Button(manager.getPropertyValue(DISPLAY.name()));
-        checkBox = new CheckBox(manager.getPropertyValue(READ_ONLY.name()));
-        Pane bottomOptions = new VBox(displayButton, checkBox);
-        dataSpace = new VBox(displayTitle, textArea, bottomOptions);
+        textArea.setVisible(false);
+        label = new Label();
+        label.setWrapText(true);
+        comboBox = new ComboBox<>();
+        comboBox.setVisible(false);
+        toggleButton = new Button("Done");
+        toggleButton.setVisible(false);
+
+        Label classificationLabel = new Label("Classification");
+        RadioButton classr1 = new RadioButton("Random Classifier");
+        ImageView classi1 = new ImageView(new Image(getClass().getResourceAsStream("/gui/icons/cog.png")));
+        HBox classificationAlg1 = new HBox(classr1, classi1);
+        classificationSpace = new VBox(classificationLabel, classificationAlg1);
+        Label clusteringLabel = new Label("Clustering");
+        RadioButton clustr1 = new RadioButton("Useless Clusterer");
+        ImageView clusti1 = new ImageView(new Image(getClass().getResourceAsStream("/gui/icons/cog.png")));
+        HBox clusteringAlg1 = new HBox(clustr1, clusti1);
+        clusteringSpace = new VBox(clusteringLabel, clusteringAlg1);
+
+        dataSpace = new VBox(textArea, toggleButton, label, comboBox);
+
         chart = new LineChart<>(xAxis, yAxis);
         chart.setTitle(manager.getPropertyValue(DATA_VISUALIZATION.name()));
-        chart.setPrefSize(windowWidth*0.9, windowHeight*0.66);
+        chart.setMinSize(windowWidth*0.65, windowHeight*0.7);
+        chart.setMaxHeight(windowHeight*0.7);
         chart.setLegendVisible(false);
         workspace.getChildren().addAll(dataSpace, chart);
         appPane.getChildren().add(workspace);
@@ -131,27 +165,26 @@ public final class AppUI extends UITemplate {
     public void enableSaveButton(boolean b){
         saveButton.setDisable(!b);
     }
+    public void hideComboBox(){ dataSpace.getChildren().remove(comboBox); }
+    public void showComboBox(){ if(!dataSpace.getChildren().contains(comboBox)) dataSpace.getChildren().add(comboBox); }
+    public void hideClassification(){ dataSpace.getChildren().remove(classificationSpace); }
+    public void showClassification(){ if(!dataSpace.getChildren().contains(classificationSpace)) dataSpace.getChildren().add(classificationSpace); }
+    public void hideClustering(){ dataSpace.getChildren().remove(clusteringSpace); }
+    public void showClustering(){ if(!dataSpace.getChildren().contains(clusteringSpace)) dataSpace.getChildren().add(clusteringSpace); }
 
     private void setWorkspaceActions() {
         textArea.textProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!newValue.equals(oldValue)) {
                     if (!newValue.isEmpty()) {
-                        ((AppActions)applicationTemplate.getActionComponent()).setIsSaved(false);
                         if (newValue.charAt(newValue.length() - 1) == '\n')
                             hasNewText = true;
-                        newButton.setDisable(false);
                         saveButton.setDisable(false);
                     } else {
                         hasNewText = true;
-                        newButton.setDisable(true);
                         saveButton.setDisable(true);
                     }
                 }
-                int oldLines = ((AppData)applicationTemplate.getDataComponent()).getLineCount(oldValue);
-                int newLines = ((AppData)applicationTemplate.getDataComponent()).getLineCount(newValue);
-                if(((AppData)applicationTemplate.getDataComponent()).isOverflow() && newLines < oldLines)
-                    ((AppData)applicationTemplate.getDataComponent()).transferLines(oldLines-newLines);
             } catch (IndexOutOfBoundsException e) {
                 System.err.println(newValue);
             }
@@ -166,7 +199,23 @@ public final class AppUI extends UITemplate {
             }
         });
 
-        displayButton.setOnAction(e -> {
+        toggleButton.setOnAction(e -> {
+            if(toggleButton.getText().equals("Done")){
+                chart.getData().clear();
+                ((AppData)applicationTemplate.getDataComponent()).loadData(textArea.getText());
+                if(((AppData)applicationTemplate.getDataComponent()).isDataIsValid()) {
+                    toggleButton.setText("Edit");
+                    textArea.setDisable(true);
+                }
+            }
+            else{
+                toggleButton.setText("Done");
+                textArea.setDisable(false);
+                //go back to editing
+            }
+
+        });
+        /*displayButton.setOnAction(e -> {
             if(hasNewText) {
                 applicationTemplate.getDataComponent().clear();
                 getChart().getData().clear();
@@ -174,6 +223,6 @@ public final class AppUI extends UITemplate {
             }
         });
 
-        checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> textArea.setDisable(newValue));
+        checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> textArea.setDisable(newValue));*/
     }
 }
