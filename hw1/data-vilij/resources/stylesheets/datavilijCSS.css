@@ -25,11 +25,11 @@
     -fx-stroke: transparent;
 }
 .axis-tick-mark {
-    -fx-stroke: linear-gradient(#EC6F66, #F3A183);
+    -fx-stroke: linear-gradient(to top right, red, yellow);
     -fx-stroke-width: 3;
 }
 .axis {
-    -fx-tick-label-fill: brown;
+    -fx-tick-label-fill: purple;
     -fx-tick-length: 20;
     -fx-minor-tick-length: 10;
 }
@@ -45,8 +45,8 @@
 .data:hover{
     -fx-cursor: hand;
 }
-#average{
-    -fx-stroke: linear-gradient(to right, red,orange,yellow,green,blue,indigo,violet);
-}
+/*.pane{
+    -fx-border-color: black;
+}*/
 
 

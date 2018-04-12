@@ -49,9 +49,11 @@ public final class AppActions implements ActionComponent {
     @Override
     public void handleNewRequest() {
         clearAll();
-        ((AppUI)applicationTemplate.getUIComponent()).getTextArea().setVisible(true);
-        ((AppUI)applicationTemplate.getUIComponent()).getTextArea().setDisable(false);
-        ((AppUI)applicationTemplate.getUIComponent()).getToggleButton().setVisible(true);
+        AppUI appUI = (AppUI)applicationTemplate.getUIComponent();
+        appUI.getTextArea().setVisible(true);
+        appUI.getTextArea().setDisable(false);
+        appUI.showToggleButton();
+
     }
 
     @Override

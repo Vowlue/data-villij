@@ -1,7 +1,6 @@
 package dataprocessors;
 
 import actions.AppActions;
-import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import ui.AppUI;
@@ -42,12 +41,14 @@ public class AppData implements DataComponent {
     private String labelNames;
     private boolean nullInData;
     private boolean dataIsValid;
+    private boolean amChangingComboBox;
 
     public AppData(ApplicationTemplate applicationTemplate) {
         this.processor = new TSDProcessor();
         this.applicationTemplate = applicationTemplate;
         manager = applicationTemplate.manager;
         loadedData = "";
+        amChangingComboBox = true;
     }
 
     public static class InvalidDataPairException extends Exception {
@@ -105,6 +106,9 @@ public class AppData implements DataComponent {
             processor.processString(dataString);
             displayData();
             showMetaData();
+            AppUI appUI = (AppUI)applicationTemplate.getUIComponent();
+            appUI.showMetaLabel();
+            appUI.showComboBox();
         }
         catch (Exception e) {
             if(((AppUI)applicationTemplate.getUIComponent()).getTextArea().isDisabled()) ((AppUI)applicationTemplate.getUIComponent()).getTextArea().setVisible(false);
@@ -145,28 +149,35 @@ public class AppData implements DataComponent {
         AppUI appUI = ((AppUI)applicationTemplate.getUIComponent());
         Path dataFilePath = ((AppActions)applicationTemplate.getActionComponent()).getDataPath();
         String path = (dataFilePath == null)? "the user" : dataFilePath.toString();
-        appUI.getLabel().setText("There are "+instances+" instances with "+labels+" labels loaded from "+path+". The labels are: \n"+labelNames);
+        appUI.getMetaLabel().setText("There are "+instances+" instances with "+labels+" labels loaded from "+path+". The labels are: \n"+labelNames);
         ComboBox<String> comboBox = appUI.getComboBox();
+        amChangingComboBox = true;
         comboBox.getItems().clear();
         comboBox.setPromptText("Choose an algorithm.");
         comboBox.getItems().add("Clustering");
         if((nullInData && labels > 2) || (!nullInData && labels > 1))
             comboBox.getItems().add("Classification");
         comboBox.setOnAction(e -> {
-            appUI.hideComboBox();
-            System.out.println(comboBox.getItems());
-            switch(comboBox.getValue()) {//wtf is wrong with this??
-                case "Classification": appUI.showClassification(); return;
-                default: appUI.showClustering(); return;
+            if(!amChangingComboBox) {
+                appUI.hideComboBox();
+                switch (comboBox.getValue()) {
+                    case "Classification":
+                        appUI.showClassification();
+                        return;
+                    default:
+                        appUI.showClustering();
+                        return;
+                }
             }
         });
         comboBox.setVisible(true);
+        amChangingComboBox = false;
     }
 
     private void clearMetaData(){
         AppUI appUI = ((AppUI)applicationTemplate.getUIComponent());
         appUI.getComboBox().setVisible(false);
-        appUI.getLabel().setText("");
+        appUI.getMetaLabel().setText("");
     }
 
     public void transferLines(String data, int lines){
