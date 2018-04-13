@@ -20,14 +20,14 @@ public class ApplicationTemplate extends Application {
 
     public final    PropertyManager    manager            = PropertyManager.getManager();
     protected final ErrorDialog        errorDialog        = ErrorDialog.getDialog();
-    protected final ConfirmationDialog confirmationDialog = ConfirmationDialog.getDialog();
+    private final ConfirmationDialog confirmationDialog = ConfirmationDialog.getDialog();
 
-    protected DataComponent   dataComponent;
+    private DataComponent   dataComponent;
     protected UIComponent     uiComponent;
-    protected ActionComponent actionComponent;
+    private ActionComponent actionComponent;
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         dialogsAudit(primaryStage);
         if (propertyAudit())
             userInterfaceAudit(primaryStage);
@@ -54,7 +54,7 @@ public class ApplicationTemplate extends Application {
         }
     }
 
-    public boolean loadProperties(InitializationParams propertyParam) {
+    protected boolean loadProperties(InitializationParams propertyParam) {
         try {
             manager.loadProperties(ApplicationTemplate.class,
                                    propertyParam.getParameterName(),
@@ -74,9 +74,9 @@ public class ApplicationTemplate extends Application {
 
     public ActionComponent getActionComponent()               { return actionComponent; }
 
-    public void setDataComponent(DataComponent component)     { this.dataComponent = component; }
+    protected void setDataComponent(DataComponent component)     { this.dataComponent = component; }
 
-    public void setUIComponent(UIComponent component)         { this.uiComponent = component; }
+    protected void setUIComponent(UIComponent component)         { this.uiComponent = component; }
 
     public void setActionComponent(ActionComponent component) { this.actionComponent = component; }
 

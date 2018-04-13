@@ -65,8 +65,7 @@ public class AppData implements DataComponent {
     }
     public static class InvalidFormatException extends Exception {
         private static final String DATA_ERROR_MSG = "This line is malformatted";
-        InvalidFormatException() {
-            super(DATA_ERROR_MSG );
+        InvalidFormatException() { super(DATA_ERROR_MSG );
         }
     }
 
@@ -148,15 +147,15 @@ public class AppData implements DataComponent {
     private void showMetaData(){
         AppUI appUI = ((AppUI)applicationTemplate.getUIComponent());
         Path dataFilePath = ((AppActions)applicationTemplate.getActionComponent()).getDataPath();
-        String path = (dataFilePath == null)? "the user" : dataFilePath.toString();
-        appUI.getMetaLabel().setText("There are "+instances+" instances with "+labels+" labels loaded from "+path+". The labels are: \n"+labelNames);
+        String path = (dataFilePath == null)? manager.getPropertyValue(THE_USER.name()) : dataFilePath.toString();
+        appUI.getMetaLabel().setText(manager.getPropertyValue(META_1.name())+instances+manager.getPropertyValue(META_2.name())+labels+manager.getPropertyValue(META_3.name())+path+manager.getPropertyValue(META_4.name())+labelNames);
         ComboBox<String> comboBox = appUI.getComboBox();
         amChangingComboBox = true;
         comboBox.getItems().clear();
-        comboBox.setPromptText("Choose an algorithm.");
-        comboBox.getItems().add("Clustering");
+        comboBox.setPromptText(manager.getPropertyValue(CHOOSE_ALGORITHM.name()));
+        comboBox.getItems().add(manager.getPropertyValue(CLUSTERING.name()));
         if(!nullInData && labels == 2)
-            comboBox.getItems().add("Classification");
+            comboBox.getItems().add(manager.getPropertyValue(CLASSIFICATION.name()));
         comboBox.setOnAction(e -> {
             if(!amChangingComboBox) {
                 appUI.hideComboBox();
@@ -221,7 +220,7 @@ public class AppData implements DataComponent {
                 instances++;
                 if(!labelList.contains(line[1])) {
                     labelList.add(line[1]);
-                    if(line[1].equals("null"))
+                    if(line[1].equals(manager.getPropertyValue(NULL.name())))
                         nullInData = true;
                     labels++;
                     ln.append("- ").append(line[1]).append("\n");

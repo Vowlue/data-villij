@@ -10,6 +10,7 @@ functionality within the main workspace. -->
 
         <!-- IDENTIFICATION CHARACTERS -->
         <property name="ASTERISK_CHARACTER" value="*"/>
+        <property name="NULL" value="null"/>
 
         <!-- DV STRING CONSTANTS -->
         <property name="DISPLAY" value="Display"/>
@@ -17,9 +18,25 @@ functionality within the main workspace. -->
         <property name="EXIT_WARNING" value="Exit Warning"/>
         <property name="READ_ONLY" value="Read-Only"/>
         <property name="PNG" value="Portable Network Graphics file"/>
+        <property name="DONE" value="Done"/>
+        <property name="CLASSIFICATION" value="Classification"/>
+        <property name="CLUSTERING" value="Clustering"/>
+        <property name="TITLE_STYLE" value="title"/>
+        <property name="EDIT" value="Edit"/>
+        <property name="RUN_CONFIGURATION" value=" Run Configuration"/>
+        <property name="RANDOM_CLASSIFIER" value="Random Classifier"/>
+        <property name="RANDOM_CLUSTERER" value="Random Clusterer"/>
+
+        <!--<property name="MAX_ITER" value="Maximum Iterations: "/>
+        <property name="UPDATE_INTER" value="Update Interval: "/>
+        <property name="CONT" value="Continuous Run? "/>
+        <property name="LABEL_NUM" value="Number of Labels: "/>
+        <property name="SET_CONFIG" value="Set Configuration"/>-->
 
         <!-- USER INTERFACE ICON FILES -->
         <property name="SCREENSHOT_ICON" value="screenshot.png"/>
+        <property name="RUN_ICON" value="play.png"/>
+        <property name="COG_ICON" value="cog.png"/>
 
         <!-- TOOLTIPS FOR BUTTONS -->
         <property name="SCREENSHOT_TOOLTIP" value="Screenshot"/> <!-- will print current view of image to a file -->
@@ -31,11 +48,19 @@ functionality within the main workspace. -->
         <property name="MANY_LINES_1" value="Loaded data consists of "/>
         <property name="MANY_LINES_2" value=" lines. Showing only the first 10 in the text area."/>
 
-        <!-- ERROR MESSAGES -->
+        <!-- MESSAGES -->
         <property name="DATA_FORMAT_ERROR_2" value="Your data should be tab-separated into 3 sections of a name '@x', a label 'label' and your x and y coordinates 'x,y'."/>
         <property name="SCREENSHOT_ERROR_TITLE" value="Screenshot Error"/>
         <property name="SCREENSHOT_ERROR_MSG" value="Screenshot could not be saved to this directory."/>
         <property name="ERROR_THIS_LINE" value="Error on line "/>
+        <property name="CHOOSE_CONFIGURATION" value="Choose a configuration for your algorithm"/>
+        <property name="NO_CONFIG" value="This algorithm has no configuration."/>
+        <property name="CHOOSE_ALGORITHM" value="Choose an algorithm."/>
+        <property name="META_1" value="There are "/>
+        <property name="META_2" value=" instances with "/>
+        <property name="META_3" value=" labels loaded from "/>
+        <property name="META_4" value=". The labels are:\n"/>
+        <property name="THE_USER" value="the user"/>
 
         <!-- APPLICATION-SPECIFIC MESSAGE TITLES -->
         <property name="SAVE_UNSAVED_WORK_TITLE" value="Save Current Work"/>
@@ -48,7 +73,6 @@ functionality within the main workspace. -->
         <property name="DATA_FILE_EXT" value=".tsd"/>
         <property name="PNG_EXT" value="png"/>
         <property name="DATA_FILE_EXT_DESC" value="Tab-Separated Data File"/>
-        <property name="TEXT_AREA" value="Data File"/>
         <property name="SPECIFIED_FILE" value=" specified file"/>
 
     </property_list>

@@ -88,32 +88,6 @@ final class TSDProcessor {
         }
     }
 
-    /*private void addAverageLine(LineChart<Number, Number> chart){
-        LineChart.Series<Number, Number> avgSeries = new LineChart.Series<>();
-        double minX = Double.MIN_VALUE;
-        double maxX = Double.MAX_VALUE;
-        double totalY = 0;
-        for(Map.Entry<String, Point2D> entry: dataPoints.entrySet()){
-            Point2D point = entry.getValue();
-            double x = point.getX();
-            double y = point.getY();
-            if(x > minX)
-                minX = x;
-            if(x < maxX)
-                maxX = x;
-            totalY += y;
-        }
-        double averageY = totalY/((double)dataPoints.size());
-        avgSeries.getData().add(new LineChart.Data<>(minX, averageY));
-        avgSeries.getData().add(new LineChart.Data<>(maxX, averageY));
-        chart.getData().add(avgSeries);
-        avgSeries.setName("Average");
-        for(LineChart.Data<Number,Number> data: avgSeries.getData()){
-            data.getNode().setVisible(false);
-        }
-        avgSeries.getNode().setId("average");
-    }*/
-
     void clear() {
         dataPoints.clear();
         dataLabels.clear();

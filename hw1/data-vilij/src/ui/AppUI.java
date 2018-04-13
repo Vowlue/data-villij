@@ -49,8 +49,8 @@ public final class AppUI extends UITemplate {
     private String                       algorithmSelected;
     private ImageView                    runButton;
     private Dialog                       runConfig;
-    private VBox metaPane;
-    private ArrayList<RadioButton> radioButtons;
+    private VBox                         metaPane;
+    private ArrayList<RadioButton>       radioButtons;
     private HashMap<String, RunConfiguration.ClassificationConfig> classificationHashMap;
     private HashMap<String, RunConfiguration.ClusteringConfig> clusteringHashMap;
     private NumberAxis xAxis;
@@ -58,6 +58,8 @@ public final class AppUI extends UITemplate {
 
     private static final String SEPARATOR = "/";
     private String ssPath;
+    private String runPath;
+    private String cogPath;
     private PropertyManager manager;
 
     public LineChart<Number, Number> getChart() { return chart; }
@@ -90,6 +92,8 @@ public final class AppUI extends UITemplate {
                 manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
                 manager.getPropertyValue(ICONS_RESOURCE_PATH.name()));
         ssPath = String.join(SEPARATOR, iconsPath, manager.getPropertyValue(SCREENSHOT_ICON.name()));
+        runPath = String.join(SEPARATOR, iconsPath, manager.getPropertyValue(RUN_ICON.name()));
+        cogPath = String.join(SEPARATOR, iconsPath, manager.getPropertyValue(COG_ICON.name()));
     }
 
     @Override
@@ -121,7 +125,7 @@ public final class AppUI extends UITemplate {
         textArea.clear();
         saveButton.setDisable(true);
         scrnshotButton.setDisable(true);
-        toggleButton.setText("Done");
+        toggleButton.setText(manager.getPropertyValue(DONE.name()));
         toggleButton.setVisible(false);
 
         removeExcess();
@@ -143,13 +147,13 @@ public final class AppUI extends UITemplate {
         newButton.setDisable(false);
         scrnshotButton.setDisable(true);
 
-        runButton = new ImageView(new Image(getClass().getResourceAsStream("/gui/icons/play.png")));
+        runButton = new ImageView(new Image(getClass().getResourceAsStream(runPath)));
         runButton.setPreserveRatio(true);
         runButton.fitWidthProperty().bind(primaryStage.widthProperty().divide(30));
         runButton.setOnMouseClicked(e -> {
             if(!classificationHashMap.containsKey(algorithmSelected) && !clusteringHashMap.containsKey(algorithmSelected))
-                applicationTemplate.getDialog(Dialog.DialogType.ERROR).show("Choose a configuration for your algorithm", "This algorithm has no configuration.");
-            System.out.println("play");
+                applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(CHOOSE_CONFIGURATION.name()), manager.getPropertyValue(NO_CONFIG.name()));
+            //System.out.println("/");
         });
 
         textArea = new TextArea();
@@ -160,20 +164,20 @@ public final class AppUI extends UITemplate {
         metaLabel.setWrapText(true);
         metaPane = new VBox(metaLabel, new Separator());
         comboBox = new ComboBox<>();
-        toggleButton = new Button("Done");
+        toggleButton = new Button(manager.getPropertyValue(DONE.name()));
         toggleButton.setVisible(false);
 
         ToggleGroup classGroup = new ToggleGroup();
-        Label classificationLabel = new Label("Classification");
-        classificationLabel.getStyleClass().add("title");
-        HBox classificationAlg1 = createAlgorithmOption("Random Classifier", classGroup, "Classification");
+        Label classificationLabel = new Label(manager.getPropertyValue(CLASSIFICATION.name()));
+        classificationLabel.getStyleClass().add(manager.getPropertyValue(TITLE_STYLE.name()));
+        HBox classificationAlg1 = createAlgorithmOption(manager.getPropertyValue(RANDOM_CLASSIFIER.name()), classGroup, manager.getPropertyValue(CLASSIFICATION.name()));
         classificationSpace = new VBox(classificationLabel, classificationAlg1);
         ToggleGroup clustGroup = new ToggleGroup();
-        Label clusteringLabel = new Label("Clustering");
-        clusteringLabel.getStyleClass().add("title");
-        HBox clusteringAlg1 = createAlgorithmOption("Useless Clusterer", clustGroup, "Clustering");
-        HBox clusteringAlg2 = createAlgorithmOption("More Useless Clusterer", clustGroup, "Clustering");
-        clusteringSpace = new VBox(clusteringLabel, clusteringAlg1, clusteringAlg2);
+        Label clusteringLabel = new Label(manager.getPropertyValue(CLUSTERING.name()));
+        clusteringLabel.getStyleClass().add(manager.getPropertyValue(TITLE_STYLE.name()));
+        HBox clusteringAlg1 = createAlgorithmOption(manager.getPropertyValue(RANDOM_CLUSTERER.name()), clustGroup, manager.getPropertyValue(CLUSTERING.name()));
+        //HBox clusteringAlg2 = createAlgorithmOption("More Useless Clusterer", clustGroup, manager.getPropertyValue(CLUSTERING.name()));
+        clusteringSpace = new VBox(clusteringLabel, clusteringAlg1);
         algorithmSpace = new VBox();
 
         dataSpace = new VBox(textArea, toggleButton, new Separator());
@@ -197,18 +201,18 @@ public final class AppUI extends UITemplate {
             showRunButton();
         });
         radioButtons.add(button);
-        ImageView settingButton = new ImageView(new Image(getClass().getResourceAsStream("/gui/icons/cog.png")));
+        ImageView settingButton = new ImageView(new Image(getClass().getResourceAsStream(cogPath)));
         settingButton.setOnMouseClicked(e -> {
             RunConfiguration runConfiguration = (RunConfiguration)runConfig;
-            if(algoType.equals("Classification")){
+            if(algoType.equals(CLASSIFICATION.name())){
                 if(!classificationHashMap.containsKey(name))
                     classificationHashMap.put(name, new RunConfiguration.ClassificationConfig());
-                runConfiguration.openConfig(name+" RunConfiguration", classificationHashMap.get(name));
+                runConfiguration.openConfig(name+manager.getPropertyValue(RUN_CONFIGURATION.name()), classificationHashMap.get(name));
             }
             else{
                 if(!clusteringHashMap.containsKey(name))
                     clusteringHashMap.put(name, new RunConfiguration.ClusteringConfig());
-                runConfiguration.openConfig(name+" RunConfiguration", clusteringHashMap.get(name));
+                runConfiguration.openConfig(name+manager.getPropertyValue(RUN_CONFIGURATION.name()), clusteringHashMap.get(name));
             }
         });
         return new HBox(button, settingButton);
@@ -257,18 +261,18 @@ public final class AppUI extends UITemplate {
         });
 
         toggleButton.setOnAction(e -> {
-            if(toggleButton.getText().equals("Done")){
+            if(toggleButton.getText().equals(manager.getPropertyValue(DONE.name()))){
                 chart.getData().clear();
                 ((AppData)applicationTemplate.getDataComponent()).loadData(textArea.getText());
                 if(((AppData)applicationTemplate.getDataComponent()).isDataIsValid()) {
-                    toggleButton.setText("Edit");
+                    toggleButton.setText(manager.getPropertyValue(EDIT.name()));
                     textArea.setDisable(true);
                 }
                 else
                     removeExcess();
             }
             else{
-                toggleButton.setText("Done");
+                toggleButton.setText(manager.getPropertyValue(DONE.name()));
                 textArea.setDisable(false);
                 hideClustering();
                 hideClassification();

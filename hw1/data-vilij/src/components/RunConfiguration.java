@@ -18,11 +18,11 @@ public class RunConfiguration extends Stage implements Dialog {
             this.labelNumber = 2;
         }
 
-        public int getLabelNumber() {
+        int getLabelNumber() {
             return labelNumber;
         }
 
-        public void setLabelNumber(int labelNumber) {
+        void setLabelNumber(int labelNumber) {
             this.labelNumber = labelNumber;
         }
     }
@@ -35,27 +35,27 @@ public class RunConfiguration extends Stage implements Dialog {
             this.maxIterations = 1000; this.updateInterval = 5; this.continuous = false;
         }
 
-        public int getMaxIterations() {
+        int getMaxIterations() {
             return maxIterations;
         }
 
-        public void setMaxIterations(int maxIterations) {
+        void setMaxIterations(int maxIterations) {
             this.maxIterations = maxIterations;
         }
 
-        public int getUpdateInterval() {
+        int getUpdateInterval() {
             return updateInterval;
         }
 
-        public void setUpdateInterval(int updateInterval) {
+        void setUpdateInterval(int updateInterval) {
             this.updateInterval = updateInterval;
         }
 
-        public boolean isContinuous() {
+        boolean isContinuous() {
             return continuous;
         }
 
-        public void setContinuous(boolean continuous) {
+        void setContinuous(boolean continuous) {
             this.continuous = continuous;
         }
     }
@@ -65,13 +65,13 @@ public class RunConfiguration extends Stage implements Dialog {
     private TextField iterationField;
     private TextField updateField;
     private CheckBox continuousCheckBox;
-    private VBox container;
     private TextField labelNumberField;
     private Button setConfig;
     private HBox labelContainer;
     private VBox choiceContainer;
 
     private RunConfiguration(){}
+
     public static RunConfiguration getRunConfiguration(){
         if(config == null)
             config = new RunConfiguration();
@@ -98,12 +98,12 @@ public class RunConfiguration extends Stage implements Dialog {
         Label continuousLabel = new Label("Continuous Run? ");
         continuousCheckBox = new CheckBox();
         HBox continuousPane = new HBox(continuousLabel, continuousCheckBox);
-        Label labelNumber = new Label("Number of Labels");
+        Label labelNumber = new Label("Number of Labels: ");
         labelNumberField = new TextField();
         labelContainer = new HBox(labelNumber, labelNumberField);
         choiceContainer = new VBox(iterationPane, updatePane, continuousPane);
         setConfig = new Button("Set Configuration");
-        container = new VBox(choiceContainer, new Separator(), setConfig);
+        VBox container = new VBox(choiceContainer, new Separator(), setConfig);
         container.setAlignment(Pos.CENTER);
         Scene configScene = new Scene(container);
         this.setScene(configScene);
@@ -120,28 +120,31 @@ public class RunConfiguration extends Stage implements Dialog {
             labelNumberField.setText(""+c.getLabelNumber());
             if (!choiceContainer.getChildren().contains(labelContainer))
                 choiceContainer.getChildren().add(labelContainer);
-            setConfig.setOnAction(e -> {
-                int iterations = confirmIterations(iterationField.getText());
-                c.setMaxIterations(iterations);
-                c.setUpdateInterval(confirmInterval(updateField.getText(), iterations));
-                c.setContinuous(continuousCheckBox.isSelected());
-                c.setLabelNumber(confirmLabels(labelNumberField.getText()));
-                this.close();
-            });
+            setConfig.setOnAction(e -> applyClusteringSettings(config));
         }
         else {
-            if (choiceContainer.getChildren().contains(labelContainer))
-                choiceContainer.getChildren().remove(labelContainer);
-            setConfig.setOnAction(e -> {
-                ClassificationConfig c = config;
-                int iterations = confirmIterations(iterationField.getText());
-                c.setMaxIterations(iterations);
-                c.setUpdateInterval(confirmInterval(updateField.getText(), iterations));
-                c.setContinuous(continuousCheckBox.isSelected());
-                this.close();
-            });
+            choiceContainer.getChildren().remove(labelContainer);
+            setConfig.setOnAction(e -> applyClassificationSettings(config));
         }
         show(title, "");
+    }
+
+    private void applyClassificationSettings(ClassificationConfig config){
+        int iterations = confirmIterations(iterationField.getText());
+        iterationField.setText(""+iterations);
+        config.setMaxIterations(iterations);
+        int interval = confirmInterval(updateField.getText(), iterations);
+        config.setUpdateInterval(interval);
+        updateField.setText(""+interval);
+        config.setContinuous(continuousCheckBox.isSelected());
+    }
+
+    private void applyClusteringSettings(ClassificationConfig config){
+        applyClassificationSettings(config);
+        ClusteringConfig c = (ClusteringConfig)config;
+        int labelNum = confirmLabels(labelNumberField.getText());
+        labelNumberField.setText(""+labelNum);
+        c.setLabelNumber(labelNum);
     }
 
     private int confirmLabels(String labels) {
