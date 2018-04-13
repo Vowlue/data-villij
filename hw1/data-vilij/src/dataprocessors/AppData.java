@@ -85,7 +85,7 @@ public class AppData implements DataComponent {
             }
             loadedData = buffer.toString();
             TextArea textArea = ((AppUI)applicationTemplate.getUIComponent()).getTextArea();
-            transferLines(loadedData, 10);
+            transferLines(loadedData);
             if(getLineCount(loadedData) > 10)
                 applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(TOO_MUCH_DATA.name()), manager.getPropertyValue(MANY_LINES_1.name())+(getLineCount(loadedData)-1)+manager.getPropertyValue(MANY_LINES_2.name()));
             textArea.setDisable(true);
@@ -155,7 +155,7 @@ public class AppData implements DataComponent {
         comboBox.getItems().clear();
         comboBox.setPromptText("Choose an algorithm.");
         comboBox.getItems().add("Clustering");
-        if((nullInData && labels > 2) || (!nullInData && labels > 1))
+        if(!nullInData && labels == 2)
             comboBox.getItems().add("Classification");
         comboBox.setOnAction(e -> {
             if(!amChangingComboBox) {
@@ -166,7 +166,6 @@ public class AppData implements DataComponent {
                         return;
                     default:
                         appUI.showClustering();
-                        return;
                 }
             }
         });
@@ -180,7 +179,8 @@ public class AppData implements DataComponent {
         appUI.getMetaLabel().setText("");
     }
 
-    public void transferLines(String data, int lines){
+    private void transferLines(String data){
+        int lines = 10;
         while(!data.equals("") && lines > 0){
             lines--;
             TextArea displayedTextArea = ((AppUI)applicationTemplate.getUIComponent()).getTextArea();
@@ -189,7 +189,7 @@ public class AppData implements DataComponent {
         }
     }
 
-    public int getLineCount(String text) {
+    private int getLineCount(String text) {
         int lines = 0;
         for(int i = 0; i<text.length(); i++){
             if(text.substring(i, i+1).equals("\n"))
@@ -200,6 +200,7 @@ public class AppData implements DataComponent {
 
     //this method will give the error line by parsing the string for the error
     public void checkString(String dataString) throws IOException{
+        nullInData = false;
         instances = 0;
         labels = 0;
         labelNames = "";
@@ -220,7 +221,7 @@ public class AppData implements DataComponent {
                 instances++;
                 if(!labelList.contains(line[1])) {
                     labelList.add(line[1]);
-                    if(line[1].equals(""))
+                    if(line[1].equals("null"))
                         nullInData = true;
                     labels++;
                     ln.append("- ").append(line[1]).append("\n");

@@ -123,6 +123,7 @@ public final class AppActions implements ActionComponent {
         applicationTemplate.getDataComponent().clear();
         ((AppUI)applicationTemplate.getUIComponent()).getChart().getData().clear();
         applicationTemplate.getDataComponent().clear();
+        dataFilePath = null;
     }
 
     private void saveFile() throws IOException{

@@ -46,10 +46,10 @@ public final class AppUI extends UITemplate {
     private Pane                         classificationSpace;
     private Pane                         clusteringSpace;
     private Pane                         algorithmSpace;
-    private Pane                         userSpace;
     private String                       algorithmSelected;
     private ImageView                    runButton;
     private Dialog                       runConfig;
+    private VBox metaPane;
     private ArrayList<RadioButton> radioButtons;
     private HashMap<String, RunConfiguration.ClassificationConfig> classificationHashMap;
     private HashMap<String, RunConfiguration.ClusteringConfig> clusteringHashMap;
@@ -61,20 +61,12 @@ public final class AppUI extends UITemplate {
     private PropertyManager manager;
 
     public LineChart<Number, Number> getChart() { return chart; }
-
     public TextArea getTextArea(){
         return textArea;
     }
-
     public Label getMetaLabel() { return metaLabel; }
-
     public ComboBox<String> getComboBox() { return comboBox; }
-
-    public Button getToggleButton() { return toggleButton; }
-
     public Button getSaveButton() { return saveButton; }
-
-    public Pane getDataSpace() { return dataSpace; }
 
     AppUI(Stage primaryStage, ApplicationTemplate applicationTemplate) {
         super(primaryStage, applicationTemplate);
@@ -127,17 +119,19 @@ public final class AppUI extends UITemplate {
     @Override
     public void clear() {
         textArea.clear();
-        chart.getData().clear();
         saveButton.setDisable(true);
         scrnshotButton.setDisable(true);
         toggleButton.setText("Done");
         toggleButton.setVisible(false);
 
+        removeExcess();
+    }
+    private void removeExcess(){
+        chart.getData().clear();
         algorithmSelected = null;
         for(RadioButton b: radioButtons){
             b.setSelected(false);
         }
-
         hideComboBox();
         hideClassification();
         hideClustering();
@@ -164,23 +158,26 @@ public final class AppUI extends UITemplate {
 
         metaLabel = new Label();
         metaLabel.setWrapText(true);
+        metaPane = new VBox(metaLabel, new Separator());
         comboBox = new ComboBox<>();
         toggleButton = new Button("Done");
         toggleButton.setVisible(false);
 
         ToggleGroup classGroup = new ToggleGroup();
         Label classificationLabel = new Label("Classification");
+        classificationLabel.getStyleClass().add("title");
         HBox classificationAlg1 = createAlgorithmOption("Random Classifier", classGroup, "Classification");
         classificationSpace = new VBox(classificationLabel, classificationAlg1);
         ToggleGroup clustGroup = new ToggleGroup();
         Label clusteringLabel = new Label("Clustering");
+        clusteringLabel.getStyleClass().add("title");
         HBox clusteringAlg1 = createAlgorithmOption("Useless Clusterer", clustGroup, "Clustering");
         HBox clusteringAlg2 = createAlgorithmOption("More Useless Clusterer", clustGroup, "Clustering");
         clusteringSpace = new VBox(clusteringLabel, clusteringAlg1, clusteringAlg2);
         algorithmSpace = new VBox();
 
         dataSpace = new VBox(textArea, toggleButton, new Separator());
-        userSpace = new VBox(dataSpace, algorithmSpace);
+        Pane userSpace = new VBox(dataSpace, algorithmSpace);
 
         chart = new LineChart<>(xAxis, yAxis);
         chart.setTitle(manager.getPropertyValue(DATA_VISUALIZATION.name()));
@@ -217,22 +214,22 @@ public final class AppUI extends UITemplate {
         return new HBox(button, settingButton);
     }
 
-    public void hideRunButton(){ if(algorithmSpace.getChildren().contains(runButton)) algorithmSpace.getChildren().remove(runButton); }
-    public void showRunButton(){ if(!algorithmSpace.getChildren().contains(runButton)) algorithmSpace.getChildren().add(runButton); }
+    private void hideRunButton(){algorithmSpace.getChildren().remove(runButton); }
+    private void showRunButton(){ if(!algorithmSpace.getChildren().contains(runButton)) algorithmSpace.getChildren().add(runButton); }
     public void enableScreenshotButton(boolean b){
         scrnshotButton.setDisable(!b);
     }
     public void enableSaveButton(boolean b){
         saveButton.setDisable(!b);
     }
-    public void hideComboBox(){ if(algorithmSpace.getChildren().contains(comboBox)) algorithmSpace.getChildren().remove(comboBox); }
+    public void hideComboBox(){algorithmSpace.getChildren().remove(comboBox); }
     public void showComboBox(){ if(!algorithmSpace.getChildren().contains(comboBox)) algorithmSpace.getChildren().add(comboBox); }
-    public void hideClassification(){ if(algorithmSpace.getChildren().contains(classificationSpace)) algorithmSpace.getChildren().remove(classificationSpace); }
+    private void hideClassification(){algorithmSpace.getChildren().remove(classificationSpace); }
     public void showClassification(){ if(!algorithmSpace.getChildren().contains(classificationSpace)) algorithmSpace.getChildren().add(classificationSpace); }
-    public void hideClustering(){ if(algorithmSpace.getChildren().contains(clusteringSpace)) algorithmSpace.getChildren().remove(clusteringSpace); }
+    private void hideClustering(){algorithmSpace.getChildren().remove(clusteringSpace); }
     public void showClustering(){ if(!algorithmSpace.getChildren().contains(clusteringSpace)) algorithmSpace.getChildren().add(clusteringSpace); }
-    public void hideMetaLabel(){ if(dataSpace.getChildren().contains(metaLabel)) dataSpace.getChildren().remove(metaLabel); }
-    public void showMetaLabel(){ if(!dataSpace.getChildren().contains(metaLabel)) dataSpace.getChildren().add(metaLabel); }
+    private void hideMetaLabel(){dataSpace.getChildren().remove(metaPane); }
+    public void showMetaLabel(){ if(!dataSpace.getChildren().contains(metaPane)) dataSpace.getChildren().add(metaPane); }
     public void showToggleButton(){ toggleButton.setVisible(true); }
 
     private void setWorkspaceActions() {
@@ -267,23 +264,16 @@ public final class AppUI extends UITemplate {
                     toggleButton.setText("Edit");
                     textArea.setDisable(true);
                 }
+                else
+                    removeExcess();
             }
             else{
                 toggleButton.setText("Done");
                 textArea.setDisable(false);
-                hideComboBox();
-                hideMetaLabel();
+                hideClustering();
+                hideClassification();
             }
 
         });
-        /*displayButton.setOnAction(e -> {
-            if(hasNewText) {
-                applicationTemplate.getDataComponent().clear();
-                getChart().getData().clear();
-                ((AppData)applicationTemplate.getDataComponent()).loadData(textArea.getText());
-            }
-        });
-
-        checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> textArea.setDisable(newValue));*/
     }
 }

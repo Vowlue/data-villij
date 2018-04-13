@@ -45,6 +45,10 @@
 .data:hover{
     -fx-cursor: hand;
 }
+.title{
+    -fx-font-weight: bold;
+    -fx-font-size: 20;
+}
 /*.pane{
     -fx-border-color: black;
 }*/
