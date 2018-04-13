@@ -12,13 +12,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import vilij.components.ConfirmationDialog;
 import vilij.components.Dialog;
 import vilij.propertymanager.PropertyManager;
 import vilij.templates.ApplicationTemplate;
 import vilij.templates.UITemplate;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import static settings.AppPropertyTypes.*;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
@@ -40,16 +41,18 @@ public final class AppUI extends UITemplate {
     private LineChart<Number, Number>    chart;          // the chart where data will be displayed
     private Button                       toggleButton;  // workspace button to display data on the chart
     private TextArea                     textArea;       // text area for new data input
-    private boolean                      hasNewText;     // whether or not the text area has any new data since last display (feels unneeded)
     private Label                        metaLabel;
     private ComboBox<String>             comboBox;
     private Pane                         classificationSpace;
     private Pane                         clusteringSpace;
     private Pane                         algorithmSpace;
     private Pane                         userSpace;
-    private boolean                      algorithmSelected;
+    private String                       algorithmSelected;
     private ImageView                    runButton;
     private Dialog                       runConfig;
+    private ArrayList<RadioButton> radioButtons;
+    private HashMap<String, RunConfiguration.ClassificationConfig> classificationHashMap;
+    private HashMap<String, RunConfiguration.ClusteringConfig> clusteringHashMap;
     private NumberAxis xAxis;
     private NumberAxis yAxis;
 
@@ -76,10 +79,13 @@ public final class AppUI extends UITemplate {
     AppUI(Stage primaryStage, ApplicationTemplate applicationTemplate) {
         super(primaryStage, applicationTemplate);
         this.applicationTemplate = applicationTemplate;
-        algorithmSelected = false;
+        algorithmSelected = null;
         workspace = new HBox();
         runConfig = RunConfiguration.getRunConfiguration();
         runConfig.init(primaryStage);
+        radioButtons = new ArrayList<>();
+        classificationHashMap = new HashMap<>();
+        clusteringHashMap = new HashMap<>();
         xAxis = new NumberAxis();
         yAxis = new NumberAxis();
     }
@@ -125,12 +131,17 @@ public final class AppUI extends UITemplate {
         saveButton.setDisable(true);
         scrnshotButton.setDisable(true);
         toggleButton.setText("Done");
+        toggleButton.setVisible(false);
+
+        algorithmSelected = null;
+        for(RadioButton b: radioButtons){
+            b.setSelected(false);
+        }
 
         hideComboBox();
         hideClassification();
         hideClustering();
         hideMetaLabel();
-        hideToggleButton();
         hideRunButton();
     }
 
@@ -142,6 +153,8 @@ public final class AppUI extends UITemplate {
         runButton.setPreserveRatio(true);
         runButton.fitWidthProperty().bind(primaryStage.widthProperty().divide(30));
         runButton.setOnMouseClicked(e -> {
+            if(!classificationHashMap.containsKey(algorithmSelected) && !clusteringHashMap.containsKey(algorithmSelected))
+                applicationTemplate.getDialog(Dialog.DialogType.ERROR).show("Choose a configuration for your algorithm", "This algorithm has no configuration.");
             System.out.println("play");
         });
 
@@ -153,35 +166,20 @@ public final class AppUI extends UITemplate {
         metaLabel.setWrapText(true);
         comboBox = new ComboBox<>();
         toggleButton = new Button("Done");
+        toggleButton.setVisible(false);
 
         ToggleGroup classGroup = new ToggleGroup();
         Label classificationLabel = new Label("Classification");
-        RadioButton classr1 = new RadioButton("Random Classifier");
-        classr1.setToggleGroup(classGroup);
-        chooseAlgorithm(classr1);
-        ImageView classi1 = new ImageView(new Image(getClass().getResourceAsStream("/gui/icons/cog.png")));
-        classi1.setOnMouseClicked(e -> openRunConfig()); //change to other run config later
-        HBox classificationAlg1 = new HBox(classr1, classi1);
+        HBox classificationAlg1 = createAlgorithmOption("Random Classifier", classGroup, "Classification");
         classificationSpace = new VBox(classificationLabel, classificationAlg1);
-
         ToggleGroup clustGroup = new ToggleGroup();
         Label clusteringLabel = new Label("Clustering");
-        RadioButton clustr1 = new RadioButton("Useless Clusterer");
-        clustr1.setToggleGroup(clustGroup);
-        chooseAlgorithm(clustr1);
-        ImageView clusti1 = new ImageView(new Image(getClass().getResourceAsStream("/gui/icons/cog.png")));
-        clusti1.setOnMouseClicked(e -> openRunConfig());
-        HBox clusteringAlg1 = new HBox(clustr1, clusti1);
-        RadioButton clustr2 = new RadioButton("More Useless Clusterer");
-        clustr2.setToggleGroup(clustGroup);
-        chooseAlgorithm(clustr2);
-        ImageView clusti2 = new ImageView(new Image(getClass().getResourceAsStream("/gui/icons/cog.png")));
-        clusti2.setOnMouseClicked(e -> openRunConfig());
-        HBox clusteringAlg2 = new HBox(clustr2, clusti2);
+        HBox clusteringAlg1 = createAlgorithmOption("Useless Clusterer", clustGroup, "Clustering");
+        HBox clusteringAlg2 = createAlgorithmOption("More Useless Clusterer", clustGroup, "Clustering");
         clusteringSpace = new VBox(clusteringLabel, clusteringAlg1, clusteringAlg2);
         algorithmSpace = new VBox();
 
-        dataSpace = new VBox(textArea);
+        dataSpace = new VBox(textArea, toggleButton, new Separator());
         userSpace = new VBox(dataSpace, algorithmSpace);
 
         chart = new LineChart<>(xAxis, yAxis);
@@ -194,29 +192,39 @@ public final class AppUI extends UITemplate {
         appPane.getStylesheets().add(manager.getPropertyValue(CSS_PATH.name()));
     }
 
-    private void openRunConfig() {
-        runConfig.show("generic title", "message");
-    }
-
-    private void chooseAlgorithm(RadioButton button) {
+    private HBox createAlgorithmOption(String name, ToggleGroup group, String algoType){
+        RadioButton button = new RadioButton(name);
+        button.setToggleGroup(group);
         button.setOnMouseClicked(e -> {
-            if(!algorithmSelected) {
-                algorithmSelected = true;
-                showRunButton();
+            algorithmSelected = name;
+            showRunButton();
+        });
+        radioButtons.add(button);
+        ImageView settingButton = new ImageView(new Image(getClass().getResourceAsStream("/gui/icons/cog.png")));
+        settingButton.setOnMouseClicked(e -> {
+            RunConfiguration runConfiguration = (RunConfiguration)runConfig;
+            if(algoType.equals("Classification")){
+                if(!classificationHashMap.containsKey(name))
+                    classificationHashMap.put(name, new RunConfiguration.ClassificationConfig());
+                runConfiguration.openConfig(name+" RunConfiguration", classificationHashMap.get(name));
+            }
+            else{
+                if(!clusteringHashMap.containsKey(name))
+                    clusteringHashMap.put(name, new RunConfiguration.ClusteringConfig());
+                runConfiguration.openConfig(name+" RunConfiguration", clusteringHashMap.get(name));
             }
         });
+        return new HBox(button, settingButton);
     }
 
     public void hideRunButton(){ if(algorithmSpace.getChildren().contains(runButton)) algorithmSpace.getChildren().remove(runButton); }
     public void showRunButton(){ if(!algorithmSpace.getChildren().contains(runButton)) algorithmSpace.getChildren().add(runButton); }
-
     public void enableScreenshotButton(boolean b){
         scrnshotButton.setDisable(!b);
     }
     public void enableSaveButton(boolean b){
         saveButton.setDisable(!b);
     }
-
     public void hideComboBox(){ if(algorithmSpace.getChildren().contains(comboBox)) algorithmSpace.getChildren().remove(comboBox); }
     public void showComboBox(){ if(!algorithmSpace.getChildren().contains(comboBox)) algorithmSpace.getChildren().add(comboBox); }
     public void hideClassification(){ if(algorithmSpace.getChildren().contains(classificationSpace)) algorithmSpace.getChildren().remove(classificationSpace); }
@@ -225,19 +233,15 @@ public final class AppUI extends UITemplate {
     public void showClustering(){ if(!algorithmSpace.getChildren().contains(clusteringSpace)) algorithmSpace.getChildren().add(clusteringSpace); }
     public void hideMetaLabel(){ if(dataSpace.getChildren().contains(metaLabel)) dataSpace.getChildren().remove(metaLabel); }
     public void showMetaLabel(){ if(!dataSpace.getChildren().contains(metaLabel)) dataSpace.getChildren().add(metaLabel); }
-    public void hideToggleButton(){ if(dataSpace.getChildren().contains(toggleButton)) dataSpace.getChildren().remove(toggleButton); }
-    public void showToggleButton(){ if(!dataSpace.getChildren().contains(toggleButton)) dataSpace.getChildren().add(toggleButton); }
+    public void showToggleButton(){ toggleButton.setVisible(true); }
 
     private void setWorkspaceActions() {
         textArea.textProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!newValue.equals(oldValue)) {
                     if (!newValue.isEmpty()) {
-                        if (newValue.charAt(newValue.length() - 1) == '\n')
-                            hasNewText = true;
                         saveButton.setDisable(false);
                     } else {
-                        hasNewText = true;
                         saveButton.setDisable(true);
                     }
                 }

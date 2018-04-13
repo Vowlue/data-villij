@@ -8,7 +8,6 @@ import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;
 import ui.AppUI;
 import vilij.components.ActionComponent;
-import vilij.components.ConfirmationDialog;
 import vilij.components.Dialog;
 import vilij.propertymanager.PropertyManager;
 import vilij.templates.ApplicationTemplate;
@@ -90,9 +89,7 @@ public final class AppActions implements ActionComponent {
     }
 
     @Override
-    public void handlePrintRequest() {
-        // TODO: NOT A PART OF HW 1
-    }
+    public void handlePrintRequest() {}
 
     public void handleScreenshotRequest() throws IOException {
         WritableImage image = ((AppUI)applicationTemplate.getUIComponent()).getChart().snapshot(new SnapshotParameters(), null);
@@ -107,19 +104,7 @@ public final class AppActions implements ActionComponent {
             ImageIO.write(SwingFXUtils.fromFXImage(image, null), manager.getPropertyValue(PNG_EXT.name()), snapshot);
     }
 
-    /**
-     * This helper method verifies that the user really wants to save their unsaved work, which they might not want to
-     * do. The user will be presented with three options:
-     * <ol>
-     * <li><code>yes</code>, indicating that the user wants to save the work and continue with the action,</li>
-     * <li><code>no</code>, indicating that the user wants to continue with the action without saving the work, and</li>
-     * <li><code>cancel</code>, to indicate that the user does not want to continue with the action, but also does not
-     * want to save the work at this point.</li>
-     * </ol>
-     *
-     * @return <code>false</code> if the user presses the <i>cancel</i>, and <code>true</code> otherwise.
-     */
-    private boolean promptToSave() throws IOException{
+    /*private boolean promptToSave() throws IOException{
         Dialog cd = applicationTemplate.getDialog(Dialog.DialogType.CONFIRMATION);
         ((ConfirmationDialog)cd).setWidth(applicationTemplate.getUIComponent().getPrimaryWindow().getWidth()*((double)5/12));
         cd.show(manager.getPropertyValue(SAVE_UNSAVED_WORK_TITLE.name()), manager.getPropertyValue(SAVE_UNSAVED_WORK.name()));
@@ -132,6 +117,7 @@ public final class AppActions implements ActionComponent {
         }
         return false;
     }
+*/
     private void clearAll(){
         applicationTemplate.getUIComponent().clear();
         applicationTemplate.getDataComponent().clear();
