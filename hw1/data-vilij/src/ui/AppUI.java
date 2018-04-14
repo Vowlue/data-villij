@@ -76,7 +76,7 @@ public final class AppUI extends UITemplate {
         algorithmSelected = null;
         workspace = new HBox();
         runConfig = RunConfiguration.getRunConfiguration();
-        runConfig.init(primaryStage);
+        ((RunConfiguration) runConfig).windInit(primaryStage, manager);
         radioButtons = new ArrayList<>();
         classificationHashMap = new HashMap<>();
         clusteringHashMap = new HashMap<>();

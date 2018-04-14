@@ -27,11 +27,11 @@ functionality within the main workspace. -->
         <property name="RANDOM_CLASSIFIER" value="Random Classifier"/>
         <property name="RANDOM_CLUSTERER" value="Random Clusterer"/>
 
-        <!--<property name="MAX_ITER" value="Maximum Iterations: "/>
+        <property name="MAX_ITER" value="Maximum Iterations: "/>
         <property name="UPDATE_INTER" value="Update Interval: "/>
         <property name="CONT" value="Continuous Run? "/>
         <property name="LABEL_NUM" value="Number of Labels: "/>
-        <property name="SET_CONFIG" value="Set Configuration"/>-->
+        <property name="SET_CONFIG" value="Set Configuration"/>
 
         <!-- USER INTERFACE ICON FILES -->
         <property name="SCREENSHOT_ICON" value="screenshot.png"/>

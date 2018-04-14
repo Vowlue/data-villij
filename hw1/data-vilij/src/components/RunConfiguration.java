@@ -8,6 +8,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import vilij.components.Dialog;
+import vilij.propertymanager.PropertyManager;
+
+import static settings.AppPropertyTypes.*;
 
 public class RunConfiguration extends Stage implements Dialog {
 
@@ -69,6 +72,7 @@ public class RunConfiguration extends Stage implements Dialog {
     private Button setConfig;
     private HBox labelContainer;
     private VBox choiceContainer;
+    private PropertyManager manager;
 
     private RunConfiguration(){}
 
@@ -84,25 +88,30 @@ public class RunConfiguration extends Stage implements Dialog {
         showAndWait();
     }
 
+    public void windInit(Stage owner, PropertyManager manager){
+        init(owner);
+        this.manager = manager;
+    }
+
     @Override
     public void init(Stage owner) {
         initModality(Modality.WINDOW_MODAL); // modal => messages are blocked from reaching other windows
         initOwner(owner);
 
-        Label iterationLabel = new Label("Maximum Iterations: ");
+        Label iterationLabel = new Label(manager.getPropertyValue(MAX_ITER.name()));
         iterationField = new TextField();
         HBox iterationPane = new HBox(iterationLabel, iterationField);
-        Label updateLabel = new Label("Update Interval: ");
+        Label updateLabel = new Label(manager.getPropertyValue(UPDATE_INTER.name()));
         updateField = new TextField();
         HBox updatePane = new HBox(updateLabel, updateField);
-        Label continuousLabel = new Label("Continuous Run? ");
+        Label continuousLabel = new Label(manager.getPropertyValue(CONT.name()));
         continuousCheckBox = new CheckBox();
         HBox continuousPane = new HBox(continuousLabel, continuousCheckBox);
-        Label labelNumber = new Label("Number of Labels: ");
+        Label labelNumber = new Label(manager.getPropertyValue(LABEL_NUM.name()));
         labelNumberField = new TextField();
         labelContainer = new HBox(labelNumber, labelNumberField);
         choiceContainer = new VBox(iterationPane, updatePane, continuousPane);
-        setConfig = new Button("Set Configuration");
+        setConfig = new Button(manager.getPropertyValue(SET_CONFIG.name()));
         VBox container = new VBox(choiceContainer, new Separator(), setConfig);
         container.setAlignment(Pos.CENTER);
         Scene configScene = new Scene(container);
