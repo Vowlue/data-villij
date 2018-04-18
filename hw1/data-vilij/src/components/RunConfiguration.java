@@ -89,8 +89,8 @@ public class RunConfiguration extends Stage implements Dialog {
     }
 
     public void windInit(Stage owner, PropertyManager manager){
-        init(owner);
         this.manager = manager;
+        init(owner);
     }
 
     @Override
