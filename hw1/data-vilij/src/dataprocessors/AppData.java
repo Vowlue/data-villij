@@ -148,7 +148,7 @@ public class AppData implements DataComponent {
         AppUI appUI = ((AppUI)applicationTemplate.getUIComponent());
         Path dataFilePath = ((AppActions)applicationTemplate.getActionComponent()).getDataPath();
         String path = (dataFilePath == null)? manager.getPropertyValue(THE_USER.name()) : dataFilePath.toString();
-        appUI.getMetaLabel().setText(manager.getPropertyValue(META_1.name())+instances+manager.getPropertyValue(META_2.name())+labels+manager.getPropertyValue(META_3.name())+path+manager.getPropertyValue(META_4.name())+labelNames);
+        appUI.getMetaLabel().setText(manager.getPropertyValue(META_1.name())+instances+manager.getPropertyValue(META_2.name())+labels+manager.getPropertyValue(META_3.name())+path+manager.getPropertyValue(META_4.name())+"\n"+labelNames);
         ComboBox<String> comboBox = appUI.getComboBox();
         amChangingComboBox = true;
         comboBox.getItems().clear();
@@ -158,7 +158,8 @@ public class AppData implements DataComponent {
             comboBox.getItems().add(manager.getPropertyValue(CLASSIFICATION.name()));
         comboBox.setOnAction(e -> {
             if(!amChangingComboBox) {
-                appUI.hideComboBox();
+                appUI.hideClassification();
+                appUI.hideClustering();
                 switch (comboBox.getValue()) {
                     case "Classification":
                         appUI.showClassification();
@@ -257,5 +258,9 @@ public class AppData implements DataComponent {
         if(list.contains(item))
             throw new DuplicateException(item);
         return item;
+    }
+
+    public void showOutput(List<Integer> list){
+        processor.showOutput(((AppUI)applicationTemplate.getUIComponent()).getChart(), list);
     }
 }

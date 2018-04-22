@@ -49,6 +49,9 @@
     -fx-font-weight: bold;
     -fx-font-size: 20;
 }
+#alg{
+    -fx-stroke: black;
+}
 /*.pane{
     -fx-border-color: black;
 }*/

@@ -21,7 +21,7 @@ public class RunConfiguration extends Stage implements Dialog {
             this.labelNumber = 2;
         }
 
-        int getLabelNumber() {
+        public int getLabelNumber() {
             return labelNumber;
         }
 
@@ -35,10 +35,10 @@ public class RunConfiguration extends Stage implements Dialog {
         private int updateInterval;
         private boolean continuous;
         public ClassificationConfig(){
-            this.maxIterations = 1000; this.updateInterval = 5; this.continuous = false;
+            this.maxIterations = 1000; this.updateInterval = 5; this.continuous = true;
         }
 
-        int getMaxIterations() {
+        public int getMaxIterations() {
             return maxIterations;
         }
 
@@ -46,7 +46,7 @@ public class RunConfiguration extends Stage implements Dialog {
             this.maxIterations = maxIterations;
         }
 
-        int getUpdateInterval() {
+        public int getUpdateInterval() {
             return updateInterval;
         }
 
@@ -54,7 +54,7 @@ public class RunConfiguration extends Stage implements Dialog {
             this.updateInterval = updateInterval;
         }
 
-        boolean isContinuous() {
+        public boolean isContinuous() {
             return continuous;
         }
 

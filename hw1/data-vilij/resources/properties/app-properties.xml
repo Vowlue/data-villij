@@ -59,7 +59,7 @@ functionality within the main workspace. -->
         <property name="META_1" value="There are "/>
         <property name="META_2" value=" instances with "/>
         <property name="META_3" value=" labels loaded from "/>
-        <property name="META_4" value=". The labels are:\n"/>
+        <property name="META_4" value=". The labels are:"/>
         <property name="THE_USER" value="the user"/>
 
         <!-- APPLICATION-SPECIFIC MESSAGE TITLES -->
