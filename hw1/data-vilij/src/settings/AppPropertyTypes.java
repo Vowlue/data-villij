@@ -19,7 +19,7 @@ public enum AppPropertyTypes {
     RANDOM_CLASSIFIER, CLUSTERING, RANDOM_CLUSTERER,
 
     /* user interface icon file names */
-    SCREENSHOT_ICON, RUN_ICON, COG_ICON,
+    SCREENSHOT_ICON, RUN_ICON, COG_ICON, CONTINUE_ICON,
 
     /* tooltips for user interface buttons */
     SCREENSHOT_TOOLTIP,
@@ -30,10 +30,10 @@ public enum AppPropertyTypes {
     MAX_ITER, UPDATE_INTER, CONT, LABEL_NUM, SET_CONFIG,
 
     /* application-specific message titles */
-    //SAVE_UNSAVED_WORK_TITLE,
+    SAVE_UNSAVED_WORK_TITLE, EXIT_WHILE_RUNNING_WARNING,
 
     /* application-specific messages */
-    //SAVE_UNSAVED_WORK,
+    SAVE_UNSAVED_WORK,
     LOAD, PNG_EXT,
 
     /* application-specific parameters */

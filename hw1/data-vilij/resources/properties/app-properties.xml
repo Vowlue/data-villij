@@ -37,6 +37,7 @@ functionality within the main workspace. -->
         <property name="SCREENSHOT_ICON" value="screenshot.png"/>
         <property name="RUN_ICON" value="play.png"/>
         <property name="COG_ICON" value="cog.png"/>
+        <property name="CONTINUE_ICON" value="continue.png"/>
 
         <!-- TOOLTIPS FOR BUTTONS -->
         <property name="SCREENSHOT_TOOLTIP" value="Screenshot"/> <!-- will print current view of image to a file -->
@@ -67,7 +68,7 @@ functionality within the main workspace. -->
         <property name="LOAD" value="Load"/>
 
         <!-- APPLICATION-SPECIFIC MESSAGES -->
-        <property name="SAVE_UNSAVED_WORK" value="Would you like to save current work?"/>
+        <property name="SAVE_UNSAVED_WORK" value="Would you like to save current work before exiting?"/>
 
         <!-- APPLICATION-SPECIFIC PARAMETERS -->
         <property name="DATA_FILE_EXT" value=".tsd"/>
