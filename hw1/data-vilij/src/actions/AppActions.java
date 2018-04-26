@@ -1,5 +1,6 @@
 package actions;
 
+import components.YesNoDialog;
 import dataprocessors.AppData;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
@@ -8,6 +9,7 @@ import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;
 import ui.AppUI;
 import vilij.components.ActionComponent;
+import vilij.components.ConfirmationDialog;
 import vilij.components.Dialog;
 import vilij.propertymanager.PropertyManager;
 import vilij.templates.ApplicationTemplate;
@@ -85,7 +87,37 @@ public final class AppActions implements ActionComponent {
 
     @Override
     public void handleExitRequest() {
-        Platform.exit();
+        //if no alg is running and data doesnt need saving just exit
+        if(!((AppUI)applicationTemplate.getUIComponent()).isAlgorithmRunning() && ((AppUI)applicationTemplate.getUIComponent()).getSaveButton().isDisabled())
+            Platform.exit();
+        //if algorithm is running
+        if(((AppUI)applicationTemplate.getUIComponent()).isAlgorithmRunning()){
+            Dialog ynd = YesNoDialog.getDialog();
+            ynd.show(manager.getPropertyValue(ALGO_RUNNING.name()), manager.getPropertyValue(EXIT_WHILE_RUNNING_WARNING.name()));
+            YesNoDialog.Option response = ((YesNoDialog)ynd).getSelectedOption();
+            if(response.equals(YesNoDialog.Option.YES))
+                System.exit(0);
+        }
+        //if data is unsaved
+        if(!((AppUI)applicationTemplate.getUIComponent()).getSaveButton().isDisabled()){
+            Dialog cd = applicationTemplate.getDialog(Dialog.DialogType.CONFIRMATION);
+            ((ConfirmationDialog)cd).setWidth(applicationTemplate.getUIComponent().getPrimaryWindow().getWidth()*((double)5/12));
+            cd.show(manager.getPropertyValue(SAVE_UNSAVED_WORK_TITLE.name()), manager.getPropertyValue(SAVE_UNSAVED_WORK.name()));
+            ConfirmationDialog.Option response = ((ConfirmationDialog)cd).getSelectedOption();
+            if(response != null && !response.equals(ConfirmationDialog.Option.CANCEL)){
+                if(response.equals(ConfirmationDialog.Option.YES)){
+                    try {
+                        saveFile();
+                        System.exit(0);
+                    } catch (IOException e) {
+                        applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(SAVE_ERROR_TITLE.name()), manager.getPropertyValue(DATA_FORMAT_ERROR_2.name())+"\n"+e.getMessage());
+                    }
+                }
+                else
+                    System.exit(0);
+            }
+        }
+
     }
 
     @Override
@@ -104,25 +136,10 @@ public final class AppActions implements ActionComponent {
             ImageIO.write(SwingFXUtils.fromFXImage(image, null), manager.getPropertyValue(PNG_EXT.name()), snapshot);
     }
 
-    /*private boolean promptToSave() throws IOException{
-        Dialog cd = applicationTemplate.getDialog(Dialog.DialogType.CONFIRMATION);
-        ((ConfirmationDialog)cd).setWidth(applicationTemplate.getUIComponent().getPrimaryWindow().getWidth()*((double)5/12));
-        cd.show(manager.getPropertyValue(SAVE_UNSAVED_WORK_TITLE.name()), manager.getPropertyValue(SAVE_UNSAVED_WORK.name()));
-        ConfirmationDialog.Option response = ((ConfirmationDialog)cd).getSelectedOption();
-        if(response != null && !response.equals(ConfirmationDialog.Option.CANCEL)){
-            if(response.equals(ConfirmationDialog.Option.YES)){
-                saveFile();
-            }
-            return !response.equals(ConfirmationDialog.Option.CANCEL);
-        }
-        return false;
-    }
-*/
     private void clearAll(){
         applicationTemplate.getUIComponent().clear();
         applicationTemplate.getDataComponent().clear();
         ((AppUI)applicationTemplate.getUIComponent()).getChart().getData().clear();
-        applicationTemplate.getDataComponent().clear();
         dataFilePath = null;
     }
 

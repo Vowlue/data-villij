@@ -4,6 +4,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.Tooltip;
 
+import javax.xml.crypto.Data;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
@@ -30,10 +31,14 @@ final class TSDProcessor {
 
     private Map<String, String> dataLabels;
     private Map<String, Point2D> dataPoints;
+    private LineChart.Series<Number,Number> algSeries;
+    private boolean seriesInserted;
 
     TSDProcessor() {
         dataLabels = new HashMap<>();
         dataPoints = new HashMap<>();
+        algSeries = new LineChart.Series<>();
+        seriesInserted = false;
     }
 
     /**
@@ -43,6 +48,7 @@ final class TSDProcessor {
      * @throws Exception if the input string does not follow the <code>.tsd</code> data format
      */
     void processString(String tsdString) throws Exception {
+        seriesInserted = false;
         AtomicBoolean hadAnError   = new AtomicBoolean(false);
         StringBuilder errorMessage = new StringBuilder();
         Stream.of(tsdString.split("\n"))
@@ -70,7 +76,7 @@ final class TSDProcessor {
      *
      * @param chart the specified chart
      */
-        void toChartData(LineChart<Number, Number> chart) {
+    void toChartData(LineChart<Number, Number> chart) {
         Set<String> labels = new HashSet<>(dataLabels.values());
         for (String label : labels) {
             LineChart.Series<Number, Number> series = new LineChart.Series<>();
@@ -86,6 +92,43 @@ final class TSDProcessor {
                 data.getNode().getStyleClass().add("data");
             }
         }
+        seriesInserted = !seriesInserted;
+        algSeries = new LineChart.Series<>();
+        chart.getData().add(algSeries);
+        algSeries.getNode().setId("alg");
+    }
+
+    public void removeAlgorithmSeries(LineChart<Number, Number> chart){
+        if(seriesInserted){
+            chart.getData().remove(algSeries);
+            seriesInserted = !seriesInserted;
+        }
+        chart.getXAxis().setAutoRanging(true);
+        chart.getYAxis().setAutoRanging(true);
+    }
+
+    public void showOutput(LineChart<Number, Number> chart, List<Integer> output){
+        chart.getXAxis().setAutoRanging(false);
+        chart.getYAxis().setAutoRanging(false);
+
+        double minX = Double.MAX_VALUE;
+        double maxX = Double.MIN_VALUE;
+        for(Point2D point: dataPoints.values()){
+            double currentX = point.getX();
+            if(currentX > maxX)
+                maxX = currentX;
+            if(currentX < minX)
+                minX = currentX;
+        }
+        algSeries.getData().clear();
+        algSeries.getData().add(new LineChart.Data<>(minX, calculateY(output, minX)));
+        algSeries.getData().add(new LineChart.Data<>(maxX, calculateY(output, maxX)));
+        for(LineChart.Data<Number,Number> data: algSeries.getData()){
+            data.getNode().setVisible(false);
+        }
+    }
+    private double calculateY(List<Integer> output, double x){
+        return ((1.0)*output.get(2)-output.get(0)*x)/(1.0*output.get(1));
     }
 
     void clear() {

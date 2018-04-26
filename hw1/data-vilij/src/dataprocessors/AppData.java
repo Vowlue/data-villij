@@ -1,6 +1,7 @@
 package dataprocessors;
 
 import actions.AppActions;
+import javafx.scene.chart.LineChart;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import ui.AppUI;
@@ -99,13 +100,13 @@ public class AppData implements DataComponent {
 
     public void loadData(String dataString) {
         try {
+            AppUI appUI = (AppUI)applicationTemplate.getUIComponent();
             dataIsValid = false;
             ((AppUI)applicationTemplate.getUIComponent()).enableScreenshotButton(true);
             checkString(dataString);
             processor.processString(dataString);
             displayData();
             showMetaData();
-            AppUI appUI = (AppUI)applicationTemplate.getUIComponent();
             appUI.showMetaLabel();
             appUI.showComboBox();
         }
@@ -144,6 +145,10 @@ public class AppData implements DataComponent {
         processor.toChartData(((AppUI)applicationTemplate.getUIComponent()).getChart());
     }
 
+    public void removeAlgorithmTrace(LineChart<Number, Number> chart){
+        processor.removeAlgorithmSeries(chart);
+    }
+
     private void showMetaData(){
         AppUI appUI = ((AppUI)applicationTemplate.getUIComponent());
         Path dataFilePath = ((AppActions)applicationTemplate.getActionComponent()).getDataPath();
@@ -154,7 +159,7 @@ public class AppData implements DataComponent {
         comboBox.getItems().clear();
         comboBox.setPromptText(manager.getPropertyValue(CHOOSE_ALGORITHM.name()));
         comboBox.getItems().add(manager.getPropertyValue(CLUSTERING.name()));
-        if(!nullInData && labels == 2)
+        if((!nullInData && labels == 2) || (nullInData && labels == 3))
             comboBox.getItems().add(manager.getPropertyValue(CLASSIFICATION.name()));
         comboBox.setOnAction(e -> {
             if(!amChangingComboBox) {

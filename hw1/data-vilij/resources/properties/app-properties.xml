@@ -21,11 +21,11 @@ functionality within the main workspace. -->
         <property name="DONE" value="Done"/>
         <property name="CLASSIFICATION" value="Classification"/>
         <property name="CLUSTERING" value="Clustering"/>
-        <property name="TITLE_STYLE" value="title"/>
         <property name="EDIT" value="Edit"/>
         <property name="RUN_CONFIGURATION" value=" Run Configuration"/>
         <property name="RANDOM_CLASSIFIER" value="Random Classifier"/>
         <property name="RANDOM_CLUSTERER" value="Random Clusterer"/>
+        <property name="ALGO_RUNNING" value="Algorithm is currently running"/>
 
         <property name="MAX_ITER" value="Maximum Iterations: "/>
         <property name="UPDATE_INTER" value="Update Interval: "/>

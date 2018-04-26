@@ -1,7 +1,11 @@
 package ui;
 
 import actions.AppActions;
+import algorithms.Algorithm;
+import classification.RandomClassifier;
 import components.RunConfiguration;
+import components.YesNoDialog;
+import data.DataSet;
 import dataprocessors.AppData;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -20,6 +24,7 @@ import vilij.templates.UITemplate;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 
 import static settings.AppPropertyTypes.*;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
@@ -47,19 +52,24 @@ public final class AppUI extends UITemplate {
     private Pane                         clusteringSpace;
     private Pane                         algorithmSpace;
     private String                       algorithmSelected;
-    private ImageView                    runButton;
+    private Button                       runButton;
     private Dialog                       runConfig;
     private VBox                         metaPane;
+    private VBox                         runPane;
     private ArrayList<RadioButton>       radioButtons;
     private HashMap<String, RunConfiguration.ClassificationConfig> classificationHashMap;
     private HashMap<String, RunConfiguration.ClusteringConfig> clusteringHashMap;
     private NumberAxis xAxis;
     private NumberAxis yAxis;
+    private boolean                      algorithmPaused;
+    private boolean                      algorithmRunning;
+    private ImageView runImage;
 
     private static final String SEPARATOR = "/";
     private String ssPath;
     private String runPath;
     private String cogPath;
+    private String continuePath;
     private PropertyManager manager;
 
     public LineChart<Number, Number> getChart() { return chart; }
@@ -70,18 +80,30 @@ public final class AppUI extends UITemplate {
     public ComboBox<String> getComboBox() { return comboBox; }
     public Button getSaveButton() { return saveButton; }
 
+    public boolean isAlgorithmRunning() {
+        return algorithmRunning;
+    }
+
+    public void setAlgorithmRunning(boolean algorithmRunning) {
+        this.algorithmRunning = algorithmRunning;
+    }
+
     AppUI(Stage primaryStage, ApplicationTemplate applicationTemplate) {
         super(primaryStage, applicationTemplate);
         this.applicationTemplate = applicationTemplate;
         algorithmSelected = null;
         workspace = new HBox();
         runConfig = RunConfiguration.getRunConfiguration();
+        YesNoDialog.getDialog().init(primaryStage);
         ((RunConfiguration) runConfig).windInit(primaryStage, manager);
         radioButtons = new ArrayList<>();
         classificationHashMap = new HashMap<>();
         clusteringHashMap = new HashMap<>();
         xAxis = new NumberAxis();
         yAxis = new NumberAxis();
+        algorithmPaused = false;
+        algorithmRunning = false;
+
     }
 
     @Override
@@ -94,6 +116,7 @@ public final class AppUI extends UITemplate {
         ssPath = String.join(SEPARATOR, iconsPath, manager.getPropertyValue(SCREENSHOT_ICON.name()));
         runPath = String.join(SEPARATOR, iconsPath, manager.getPropertyValue(RUN_ICON.name()));
         cogPath = String.join(SEPARATOR, iconsPath, manager.getPropertyValue(COG_ICON.name()));
+        continuePath = String.join(SEPARATOR, iconsPath, manager.getPropertyValue(CONTINUE_ICON.name()));
     }
 
     @Override
@@ -127,6 +150,7 @@ public final class AppUI extends UITemplate {
         scrnshotButton.setDisable(true);
         toggleButton.setText(manager.getPropertyValue(DONE.name()));
         toggleButton.setVisible(false);
+        ((AppData)applicationTemplate.getDataComponent()).removeAlgorithmTrace(chart);
 
         removeExcess();
     }
@@ -143,17 +167,67 @@ public final class AppUI extends UITemplate {
         hideRunButton();
     }
 
+    public boolean isAlgorithmPaused() {
+        return algorithmPaused;
+    }
+
+    public void setAlgorithmPaused(boolean algorithmPaused) {
+        this.algorithmPaused = algorithmPaused;
+    }
+
+    public void changeRunButton(int type){
+        if(type == 0)
+            runImage.setImage(new Image(getClass().getResourceAsStream(runPath)));
+        else
+            runImage.setImage(new Image(getClass().getResourceAsStream(continuePath)));
+    }
+
+    private void continueAlgorithm(){
+        synchronized (this){
+            algorithmPaused = false;
+            this.notifyAll();
+        }
+    }
+
     private void layout() {
+        primaryStage.setOnCloseRequest(e -> {
+            e.consume();
+            applicationTemplate.getActionComponent().handleExitRequest();
+        });
         newButton.setDisable(false);
         scrnshotButton.setDisable(true);
 
-        runButton = new ImageView(new Image(getClass().getResourceAsStream(runPath)));
-        runButton.setPreserveRatio(true);
-        runButton.fitWidthProperty().bind(primaryStage.widthProperty().divide(30));
+        runImage = new ImageView(new Image(getClass().getResourceAsStream(runPath)));
+        runButton = new Button(null, runImage);
         runButton.setOnMouseClicked(e -> {
-            if(!classificationHashMap.containsKey(algorithmSelected) && !clusteringHashMap.containsKey(algorithmSelected))
-                applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(CHOOSE_CONFIGURATION.name()), manager.getPropertyValue(NO_CONFIG.name()));
-            //System.out.println("/");
+            if(algorithmPaused){
+                continueAlgorithm();
+            }
+            else {
+                //check on this after
+                if (!classificationHashMap.containsKey(algorithmSelected) && !clusteringHashMap.containsKey(algorithmSelected))
+                    applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(CHOOSE_CONFIGURATION.name()), manager.getPropertyValue(NO_CONFIG.name()));
+                else {
+                    DataSet dataSet = new DataSet();
+                    Scanner scanner = new Scanner(textArea.getText());
+                    while (scanner.hasNextLine()) {
+                        try {
+                            dataSet.addInstance(scanner.nextLine());
+                        } catch (DataSet.InvalidDataNameException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                    switch (algorithmSelected) {
+                        case "Random Classifier":
+                            RunConfiguration.ClassificationConfig config = classificationHashMap.get(manager.getPropertyValue(RANDOM_CLASSIFIER.name()));
+                            Algorithm classifier = new RandomClassifier(applicationTemplate, dataSet, config.getMaxIterations(), config.getUpdateInterval(), config.isContinuous());
+                            new Thread(classifier).start();
+                            return;
+                        default:
+
+                    }
+                }
+            }
         });
 
         textArea = new TextArea();
@@ -168,22 +242,19 @@ public final class AppUI extends UITemplate {
         toggleButton.setVisible(false);
 
         ToggleGroup classGroup = new ToggleGroup();
-        Label classificationLabel = new Label(manager.getPropertyValue(CLASSIFICATION.name()));
-        classificationLabel.getStyleClass().add(manager.getPropertyValue(TITLE_STYLE.name()));
         HBox classificationAlg1 = createAlgorithmOption(manager.getPropertyValue(RANDOM_CLASSIFIER.name()), classGroup, manager.getPropertyValue(CLASSIFICATION.name()));
-        classificationSpace = new VBox(classificationLabel, classificationAlg1);
+        classificationSpace = new VBox(classificationAlg1);
         ToggleGroup clustGroup = new ToggleGroup();
-        Label clusteringLabel = new Label(manager.getPropertyValue(CLUSTERING.name()));
-        clusteringLabel.getStyleClass().add(manager.getPropertyValue(TITLE_STYLE.name()));
         HBox clusteringAlg1 = createAlgorithmOption(manager.getPropertyValue(RANDOM_CLUSTERER.name()), clustGroup, manager.getPropertyValue(CLUSTERING.name()));
-        //HBox clusteringAlg2 = createAlgorithmOption("More Useless Clusterer", clustGroup, manager.getPropertyValue(CLUSTERING.name()));
-        clusteringSpace = new VBox(clusteringLabel, clusteringAlg1);
+        clusteringSpace = new VBox(clusteringAlg1);
         algorithmSpace = new VBox();
 
         dataSpace = new VBox(textArea, toggleButton, new Separator());
-        Pane userSpace = new VBox(dataSpace, algorithmSpace);
+        runPane = new VBox();
+        Pane userSpace = new VBox(dataSpace, algorithmSpace, runPane);
 
         chart = new LineChart<>(xAxis, yAxis);
+        chart.setAnimated(false);
         chart.setTitle(manager.getPropertyValue(DATA_VISUALIZATION.name()));
         chart.setMinSize(windowWidth*0.65, windowHeight*0.7);
         chart.setMaxHeight(windowHeight*0.7);
@@ -204,7 +275,7 @@ public final class AppUI extends UITemplate {
         ImageView settingButton = new ImageView(new Image(getClass().getResourceAsStream(cogPath)));
         settingButton.setOnMouseClicked(e -> {
             RunConfiguration runConfiguration = (RunConfiguration)runConfig;
-            if(algoType.equals(CLASSIFICATION.name())){
+            if(algoType.equals(manager.getPropertyValue(CLASSIFICATION.name()))){
                 if(!classificationHashMap.containsKey(name))
                     classificationHashMap.put(name, new RunConfiguration.ClassificationConfig());
                 runConfiguration.openConfig(name+manager.getPropertyValue(RUN_CONFIGURATION.name()), classificationHashMap.get(name));
@@ -218,19 +289,19 @@ public final class AppUI extends UITemplate {
         return new HBox(button, settingButton);
     }
 
-    private void hideRunButton(){algorithmSpace.getChildren().remove(runButton); }
-    private void showRunButton(){ if(!algorithmSpace.getChildren().contains(runButton)) algorithmSpace.getChildren().add(runButton); }
+    public void hideRunButton(){ runPane.getChildren().remove(runButton); }
+    public void showRunButton(){ if(!runPane.getChildren().contains(runButton)) runPane.getChildren().add(runButton); }
     public void enableScreenshotButton(boolean b){
         scrnshotButton.setDisable(!b);
     }
     public void enableSaveButton(boolean b){
         saveButton.setDisable(!b);
     }
-    public void hideComboBox(){algorithmSpace.getChildren().remove(comboBox); }
+    private void hideComboBox(){algorithmSpace.getChildren().remove(comboBox); }
     public void showComboBox(){ if(!algorithmSpace.getChildren().contains(comboBox)) algorithmSpace.getChildren().add(comboBox); }
-    private void hideClassification(){algorithmSpace.getChildren().remove(classificationSpace); }
+    public void hideClassification(){algorithmSpace.getChildren().remove(classificationSpace); }
     public void showClassification(){ if(!algorithmSpace.getChildren().contains(classificationSpace)) algorithmSpace.getChildren().add(classificationSpace); }
-    private void hideClustering(){algorithmSpace.getChildren().remove(clusteringSpace); }
+    public void hideClustering(){algorithmSpace.getChildren().remove(clusteringSpace); }
     public void showClustering(){ if(!algorithmSpace.getChildren().contains(clusteringSpace)) algorithmSpace.getChildren().add(clusteringSpace); }
     private void hideMetaLabel(){dataSpace.getChildren().remove(metaPane); }
     public void showMetaLabel(){ if(!dataSpace.getChildren().contains(metaPane)) dataSpace.getChildren().add(metaPane); }
@@ -277,7 +348,6 @@ public final class AppUI extends UITemplate {
                 hideClustering();
                 hideClassification();
             }
-
         });
     }
 }
