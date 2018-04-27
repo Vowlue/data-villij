@@ -70,8 +70,8 @@ public class RandomClassifier extends Classifier {
 
             // this is the real output of the classifier
             output = Arrays.asList(xCoefficient, yCoefficient, constant);
-
-            if(i % updateInterval == 0 || i > maxIterations * .6 && RAND.nextDouble() < 0.05){
+            double random = RAND.nextDouble();
+            if(i % updateInterval == 0 || i > maxIterations * .6 && random < 0.05){
                 Task<Void> iterationTask = new Task<Void>() {
                     @Override
                     protected Void call() {
@@ -95,6 +95,7 @@ public class RandomClassifier extends Classifier {
                     }
                 }
                 else{
+                    System.out.println(i);
                     new Thread(iterationTask).start();
                     appUI.setAlgorithmPaused(true);
                     appUI.changeRunButton(1);
@@ -108,8 +109,8 @@ public class RandomClassifier extends Classifier {
                         }
                     }
                 }
+                if(i > maxIterations * .6 && random < 0.05) break;
             }
-            if(i > maxIterations * .6 && RAND.nextDouble() < 0.05) break;
         }
         Platform.runLater(() -> {
             appUI.showRunButton();
