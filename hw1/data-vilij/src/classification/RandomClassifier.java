@@ -98,18 +98,18 @@ public class RandomClassifier extends Classifier {
                     new Thread(iterationTask).start();
                     appUI.setAlgorithmPaused(true);
                     appUI.changeRunButton(1);
-                    synchronized (this){
+                    synchronized (applicationTemplate){
                         while(appUI.isAlgorithmPaused()){
                             try {
-                                this.wait();
+                                applicationTemplate.wait();
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
                         }
-                        new Thread(iterationTask).start();
                     }
                 }
             }
+            if(i > maxIterations * .6 && RAND.nextDouble() < 0.05) break;
         }
         Platform.runLater(() -> {
             appUI.showRunButton();

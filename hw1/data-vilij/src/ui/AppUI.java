@@ -183,9 +183,9 @@ public final class AppUI extends UITemplate {
     }
 
     private void continueAlgorithm(){
-        synchronized (this){
+        synchronized (applicationTemplate){
             algorithmPaused = false;
-            this.notifyAll();
+            applicationTemplate.notifyAll();
         }
     }
 
