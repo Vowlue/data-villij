@@ -2,9 +2,6 @@ package data;
 
 import javafx.geometry.Point2D;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -27,7 +24,7 @@ public class DataSet {
 
         private static final String NAME_ERROR_MSG = "All data instance names must start with the @ character.";
 
-        public InvalidDataNameException(String name) {
+        InvalidDataNameException(String name) {
             super(String.format("Invalid name '%s'." + NAME_ERROR_MSG, name));
         }
     }
@@ -66,17 +63,5 @@ public class DataSet {
         String[] arr = tsdLine.split("\t");
         labels.put(nameFormatCheck(arr[0]), arr[1]);
         locations.put(arr[0], locationOf(arr[2]));
-    }
-
-    public static DataSet fromTSDFile(Path tsdFilePath) throws IOException {
-        DataSet dataset = new DataSet();
-        Files.lines(tsdFilePath).forEach(line -> {
-            try {
-                dataset.addInstance(line);
-            } catch (InvalidDataNameException e) {
-                e.printStackTrace();
-            }
-        });
-        return dataset;
     }
 }

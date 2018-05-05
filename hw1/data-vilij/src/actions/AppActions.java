@@ -166,6 +166,18 @@ public final class AppActions implements ActionComponent {
         }
     }
 
+    public void waitForUser() {
+        synchronized (applicationTemplate){
+            while(((AppUI)applicationTemplate.getUIComponent()).isAlgorithmPaused()){
+                try {
+                    applicationTemplate.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     public Path getDataPath() {
         return dataFilePath;
     }

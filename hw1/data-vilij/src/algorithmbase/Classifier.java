@@ -1,10 +1,10 @@
-package algorithms;
+package algorithmbase;
 
 import java.util.List;
 
 /**
- * An abstract class for classification algorithms. The output
- * for these algorithms is a straight line, as described in
+ * An abstract class for classification algorithmbase. The output
+ * for these algorithmbase is a straight line, as described in
  * Appendix C of the software requirements specification
  * (SRS). The {@link #output} is defined with extensibility
  * in mind.

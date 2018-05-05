@@ -1,6 +1,7 @@
 package dataprocessors;
 
 import actions.AppActions;
+import data.DataSet;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
@@ -29,7 +30,7 @@ import static vilij.settings.PropertyTypes.SAVE_ERROR_TITLE;
  * @author Ritwik Banerjee
  * @see DataComponent
  */
-public class AppData implements DataComponent {
+public class AppData implements DataComponent{
 
     private TSDProcessor        processor;
     private ApplicationTemplate applicationTemplate;
@@ -71,6 +72,7 @@ public class AppData implements DataComponent {
     }
 
     public boolean isDataIsValid(){ return dataIsValid; }
+    public TSDProcessor getProcessor(){ return processor; }
 
     @Override
     public void loadData(Path dataFilePath) {
@@ -265,7 +267,12 @@ public class AppData implements DataComponent {
         return item;
     }
 
-    public void showOutput(List<Integer> list){
-        processor.showOutput(((AppUI)applicationTemplate.getUIComponent()).getChart(), list);
+    public void processDataSet(DataSet dataSet){
+        processor.processString(((AppUI)applicationTemplate.getUIComponent()).getChart(), dataSet);
+        processor.toChartData(((AppUI)applicationTemplate.getUIComponent()).getChart());
+    }
+
+    public void processList(List<Integer> list){
+        processor.processList(list);
     }
 }

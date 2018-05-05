@@ -14,11 +14,11 @@ import static settings.AppPropertyTypes.*;
 
 public class RunConfiguration extends Stage implements Dialog {
 
-    public static class ClusteringConfig extends ClassificationConfig{
+    public static class ClusteringConfig extends ConfigInfo{
         private int labelNumber;
         public ClusteringConfig(){
             super();
-            this.labelNumber = 2;
+            this.labelNumber = 3;
         }
 
         public int getLabelNumber() {
@@ -30,12 +30,15 @@ public class RunConfiguration extends Stage implements Dialog {
         }
     }
 
-    public static class ClassificationConfig{
+    public static class ClassificationConfig extends ConfigInfo{
+    }
+
+    public static class ConfigInfo{
         private int maxIterations;
         private int updateInterval;
         private boolean continuous;
-        public ClassificationConfig(){
-            this.maxIterations = 1000; this.updateInterval = 5; this.continuous = true;
+        public ConfigInfo(){
+            this.maxIterations = 40; this.updateInterval = 5; this.continuous = true;
         }
 
         public int getMaxIterations() {
@@ -118,7 +121,7 @@ public class RunConfiguration extends Stage implements Dialog {
         this.setScene(configScene);
     }
 
-    public void openConfig(String title, ClassificationConfig config){
+    public void openConfig(String title, ConfigInfo config){
         iterationField.setText(""+config.getMaxIterations());
         updateField.setText(""+config.getUpdateInterval());
         continuousCheckBox.setSelected(config.isContinuous());
@@ -129,7 +132,7 @@ public class RunConfiguration extends Stage implements Dialog {
             labelNumberField.setText(""+c.getLabelNumber());
             if (!choiceContainer.getChildren().contains(labelContainer))
                 choiceContainer.getChildren().add(labelContainer);
-            setConfig.setOnAction(e -> applyClusteringSettings(config));
+            setConfig.setOnAction(e -> applyClusteringSettings(c));
         }
         else {
             choiceContainer.getChildren().remove(labelContainer);
@@ -138,7 +141,7 @@ public class RunConfiguration extends Stage implements Dialog {
         show(title, "");
     }
 
-    private void applyClassificationSettings(ClassificationConfig config){
+    private void applyClassificationSettings(ConfigInfo config){
         int iterations = confirmIterations(iterationField.getText());
         iterationField.setText(""+iterations);
         config.setMaxIterations(iterations);
@@ -148,7 +151,7 @@ public class RunConfiguration extends Stage implements Dialog {
         config.setContinuous(continuousCheckBox.isSelected());
     }
 
-    private void applyClusteringSettings(ClassificationConfig config){
+    private void applyClusteringSettings(ConfigInfo config){
         applyClassificationSettings(config);
         ClusteringConfig c = (ClusteringConfig)config;
         int labelNum = confirmLabels(labelNumberField.getText());
@@ -159,8 +162,10 @@ public class RunConfiguration extends Stage implements Dialog {
     private int confirmLabels(String labels) {
         try{
             int i = Integer.parseInt(labels);
-            if(i<1)
-                return 1;
+            if(i<2)
+                return 2;
+            else if(i>4)
+                return 4;
             return i;
         }
         catch(Exception e){

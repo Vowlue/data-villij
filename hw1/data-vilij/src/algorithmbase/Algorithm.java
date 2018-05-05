@@ -1,4 +1,4 @@
-package algorithms;
+package algorithmbase;
 
 /**
  * This interface provides a way to run an algorithm

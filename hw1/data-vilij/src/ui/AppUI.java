@@ -1,11 +1,14 @@
 package ui;
 
 import actions.AppActions;
-import algorithms.Algorithm;
-import classification.RandomClassifier;
+import algorithmbase.Algorithm;
+import algorithmbase.Clusterer;
+import algorithms.KMeansClusterer;
+import algorithms.RandomClassifier;
+import algorithms.RandomClusterer;
 import components.RunConfiguration;
 import components.YesNoDialog;
-import data.DataSet;
+import data.*;
 import dataprocessors.AppData;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -21,10 +24,11 @@ import vilij.propertymanager.PropertyManager;
 import vilij.templates.ApplicationTemplate;
 import vilij.templates.UITemplate;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.lang.reflect.Constructor;
+import java.nio.file.Paths;
+import java.util.*;
 
 import static settings.AppPropertyTypes.*;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
@@ -51,14 +55,13 @@ public final class AppUI extends UITemplate {
     private Pane                         classificationSpace;
     private Pane                         clusteringSpace;
     private Pane                         algorithmSpace;
-    private String                       algorithmSelected;
+    private Class                        algorithmSelected;
     private Button                       runButton;
     private Dialog                       runConfig;
     private VBox                         metaPane;
     private VBox                         runPane;
     private ArrayList<RadioButton>       radioButtons;
-    private HashMap<String, RunConfiguration.ClassificationConfig> classificationHashMap;
-    private HashMap<String, RunConfiguration.ClusteringConfig> clusteringHashMap;
+    private HashMap<String, RunConfiguration.ConfigInfo> configInfoHashMap;
     private NumberAxis xAxis;
     private NumberAxis yAxis;
     private boolean                      algorithmPaused;
@@ -97,8 +100,7 @@ public final class AppUI extends UITemplate {
         YesNoDialog.getDialog().init(primaryStage);
         ((RunConfiguration) runConfig).windInit(primaryStage, manager);
         radioButtons = new ArrayList<>();
-        classificationHashMap = new HashMap<>();
-        clusteringHashMap = new HashMap<>();
+        configInfoHashMap = new HashMap<>();
         xAxis = new NumberAxis();
         yAxis = new NumberAxis();
         algorithmPaused = false;
@@ -175,6 +177,7 @@ public final class AppUI extends UITemplate {
         this.algorithmPaused = algorithmPaused;
     }
 
+    //edit this to be a boolean
     public void changeRunButton(int type){
         if(type == 0)
             runImage.setImage(new Image(getClass().getResourceAsStream(runPath)));
@@ -204,8 +207,7 @@ public final class AppUI extends UITemplate {
                 continueAlgorithm();
             }
             else {
-                //check on this after
-                if (!classificationHashMap.containsKey(algorithmSelected) && !clusteringHashMap.containsKey(algorithmSelected))
+                if (!configInfoHashMap.containsKey(algorithmSelected.getSimpleName()))
                     applicationTemplate.getDialog(Dialog.DialogType.ERROR).show(manager.getPropertyValue(CHOOSE_CONFIGURATION.name()), manager.getPropertyValue(NO_CONFIG.name()));
                 else {
                     DataSet dataSet = new DataSet();
@@ -217,15 +219,22 @@ public final class AppUI extends UITemplate {
                             e1.printStackTrace();
                         }
                     }
-                    switch (algorithmSelected) {
-                        case "Random Classifier":
-                            RunConfiguration.ClassificationConfig config = classificationHashMap.get(manager.getPropertyValue(RANDOM_CLASSIFIER.name()));
-                            Algorithm classifier = new RandomClassifier(applicationTemplate, dataSet, config.getMaxIterations(), config.getUpdateInterval(), config.isContinuous());
-                            new Thread(classifier).start();
-                            return;
-                        default:
-
-                    }
+                    algorithmRunning = true;
+                    RunConfiguration.ConfigInfo c = configInfoHashMap.get(algorithmSelected.getSimpleName());
+                    try {
+                        if(algorithmSelected.getSuperclass().equals(Class.forName("algorithmbase.Clusterer"))) {
+                            DataCollector dataCollector = new DataCollector();
+                            Algorithm algorithm = (Algorithm)algorithmSelected.getConstructors()[0].newInstance(dataCollector, dataSet, c.getMaxIterations(), c.getUpdateInterval(), ((RunConfiguration.ClusteringConfig)c).getLabelNumber());
+                            new Thread(algorithm).start();
+                            new Thread(new DataRunner(dataCollector, applicationTemplate, c.isContinuous())).start();
+                        }
+                        else{
+                            ListCollector listCollector = new ListCollector();
+                            Algorithm algorithm = (Algorithm)algorithmSelected.getConstructors()[0].newInstance(listCollector, dataSet, c.getMaxIterations(), c.getUpdateInterval());
+                            new Thread(algorithm).start();
+                            new Thread(new ListRunner(listCollector, applicationTemplate, c.isContinuous())).start();
+                        }
+                    } catch (Exception e1) { e1.printStackTrace(); }
                 }
             }
         });
@@ -241,12 +250,56 @@ public final class AppUI extends UITemplate {
         toggleButton = new Button(manager.getPropertyValue(DONE.name()));
         toggleButton.setVisible(false);
 
+        String algorithmPath = Paths.get("").toAbsolutePath().toString()+"\\hw1\\data-vilij\\src\\algorithms";
+        String algorithmTypesPath = Paths.get("").toAbsolutePath().toString()+"\\hw1\\data-vilij\\src\\algorithmbase";
+        File algoFolder = new File(algorithmPath);
+        File typeFolder = new File(algorithmTypesPath);
+        List<Class> classList = new ArrayList<>();
+        List<Class> typeList = new ArrayList<>();
+        for(File file: Objects.requireNonNull(algoFolder.listFiles())){
+            try {
+                classList.add(Class.forName("algorithms."+removeExtension(file.getName())));
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        for(File file: Objects.requireNonNull(typeFolder.listFiles())){
+            try {
+                typeList.add(Class.forName("algorithmbase."+removeExtension(file.getName())));
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
         ToggleGroup classGroup = new ToggleGroup();
-        HBox classificationAlg1 = createAlgorithmOption(manager.getPropertyValue(RANDOM_CLASSIFIER.name()), classGroup, manager.getPropertyValue(CLASSIFICATION.name()));
-        classificationSpace = new VBox(classificationAlg1);
+        classificationSpace = new VBox();
         ToggleGroup clustGroup = new ToggleGroup();
-        HBox clusteringAlg1 = createAlgorithmOption(manager.getPropertyValue(RANDOM_CLUSTERER.name()), clustGroup, manager.getPropertyValue(CLUSTERING.name()));
-        clusteringSpace = new VBox(clusteringAlg1);
+        clusteringSpace = new VBox();
+        boolean classif = false;
+        for(Class type: typeList){
+            if(!type.isInterface()){
+                for(Class algorithm: classList){
+                    if(classif) {
+                        try {
+                            if(algorithm.getSuperclass().equals(Class.forName(type.getName())))
+                                classificationSpace.getChildren().add(createAlgorithmOption(algorithm, classGroup, classif));
+
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    else{
+                        try {
+                            if(algorithm.getSuperclass().equals(Class.forName(type.getName())))
+                                clusteringSpace.getChildren().add(createAlgorithmOption(algorithm, clustGroup, classif));
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            classif = !classif;
+        }
+
         algorithmSpace = new VBox();
 
         dataSpace = new VBox(textArea, toggleButton, new Separator());
@@ -258,35 +311,38 @@ public final class AppUI extends UITemplate {
         chart.setTitle(manager.getPropertyValue(DATA_VISUALIZATION.name()));
         chart.setMinSize(windowWidth*0.65, windowHeight*0.7);
         chart.setMaxHeight(windowHeight*0.7);
-        chart.setLegendVisible(false);
         workspace.getChildren().addAll(userSpace, chart);
         appPane.getChildren().add(workspace);
         appPane.getStylesheets().add(manager.getPropertyValue(CSS_PATH.name()));
     }
 
-    private HBox createAlgorithmOption(String name, ToggleGroup group, String algoType){
+    private HBox createAlgorithmOption(Class algorithm, ToggleGroup group, boolean isClassification){
+        String name = algorithm.getSimpleName();
         RadioButton button = new RadioButton(name);
         button.setToggleGroup(group);
         button.setOnMouseClicked(e -> {
-            algorithmSelected = name;
+            algorithmSelected = algorithm;
             showRunButton();
         });
         radioButtons.add(button);
         ImageView settingButton = new ImageView(new Image(getClass().getResourceAsStream(cogPath)));
         settingButton.setOnMouseClicked(e -> {
             RunConfiguration runConfiguration = (RunConfiguration)runConfig;
-            if(algoType.equals(manager.getPropertyValue(CLASSIFICATION.name()))){
-                if(!classificationHashMap.containsKey(name))
-                    classificationHashMap.put(name, new RunConfiguration.ClassificationConfig());
-                runConfiguration.openConfig(name+manager.getPropertyValue(RUN_CONFIGURATION.name()), classificationHashMap.get(name));
+            if(isClassification) {
+                if (!configInfoHashMap.containsKey(name))
+                    configInfoHashMap.put(name, new RunConfiguration.ConfigInfo());
+                runConfiguration.openConfig(name + manager.getPropertyValue(RUN_CONFIGURATION.name()), configInfoHashMap.get(name));
             }
             else{
-                if(!clusteringHashMap.containsKey(name))
-                    clusteringHashMap.put(name, new RunConfiguration.ClusteringConfig());
-                runConfiguration.openConfig(name+manager.getPropertyValue(RUN_CONFIGURATION.name()), clusteringHashMap.get(name));
+                if (!configInfoHashMap.containsKey(name))
+                    configInfoHashMap.put(name, new RunConfiguration.ClusteringConfig());
+                runConfiguration.openConfig(name + manager.getPropertyValue(RUN_CONFIGURATION.name()), configInfoHashMap.get(name));
             }
         });
         return new HBox(button, settingButton);
+    }
+    private String removeExtension(String fileName){
+        return fileName.substring(0, fileName.lastIndexOf("."));
     }
 
     public void hideRunButton(){ runPane.getChildren().remove(runButton); }
@@ -306,6 +362,13 @@ public final class AppUI extends UITemplate {
     private void hideMetaLabel(){dataSpace.getChildren().remove(metaPane); }
     public void showMetaLabel(){ if(!dataSpace.getChildren().contains(metaPane)) dataSpace.getChildren().add(metaPane); }
     public void showToggleButton(){ toggleButton.setVisible(true); }
+
+    public void finishAlgorithm(){
+        this.showRunButton();
+        this.enableScreenshotButton(true);
+        this.setAlgorithmRunning(false);
+        this.changeRunButton(0);
+    }
 
     private void setWorkspaceActions() {
         textArea.textProperty().addListener((observable, oldValue, newValue) -> {

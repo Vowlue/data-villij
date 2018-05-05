@@ -1,10 +1,10 @@
 package dataprocessors;
 
+import data.DataSet;
 import javafx.geometry.Point2D;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.Tooltip;
 
-import javax.xml.crypto.Data;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
@@ -71,6 +71,18 @@ final class TSDProcessor {
             throw new Exception(errorMessage.toString());
     }
 
+    void processString(LineChart<Number, Number> chart, DataSet dataSet){
+        chart.getData().clear();
+        dataLabels.clear();
+        dataPoints.clear();
+        for(String instance: dataSet.getLabels().keySet()){
+            String label = dataSet.getLabels().get(instance);
+            Point2D point = dataSet.getLocations().get(instance);
+            dataLabels.put(instance, label);
+            dataPoints.put(instance, point);
+        }
+    }
+
     /**
      * Exports the data to the specified 2-D chart.
      *
@@ -98,7 +110,7 @@ final class TSDProcessor {
         algSeries.getNode().setId("alg");
     }
 
-    public void removeAlgorithmSeries(LineChart<Number, Number> chart){
+    void removeAlgorithmSeries(LineChart<Number, Number> chart){
         if(seriesInserted){
             chart.getData().remove(algSeries);
             seriesInserted = !seriesInserted;
@@ -107,10 +119,7 @@ final class TSDProcessor {
         chart.getYAxis().setAutoRanging(true);
     }
 
-    public void showOutput(LineChart<Number, Number> chart, List<Integer> output){
-        chart.getXAxis().setAutoRanging(false);
-        chart.getYAxis().setAutoRanging(false);
-
+    void processList(List<Integer> output){
         double minX = Double.MAX_VALUE;
         double maxX = Double.MIN_VALUE;
         for(Point2D point: dataPoints.values()){
