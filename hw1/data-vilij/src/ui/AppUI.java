@@ -336,6 +336,12 @@ public final class AppUI extends UITemplate {
         return fileName.substring(0, fileName.lastIndexOf("."));
     }
 
+    public void unselectRadioButtons(){
+        for(RadioButton radioButton: radioButtons){
+            radioButton.setSelected(false);
+        }
+    }
+
     public void hideRunButton(){ runPane.getChildren().remove(runButton); }
     private void showRunButton(){ if(!runPane.getChildren().contains(runButton)) runPane.getChildren().add(runButton); }
     public void enableScreenshotButton(boolean b){

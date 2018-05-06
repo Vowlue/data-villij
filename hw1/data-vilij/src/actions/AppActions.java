@@ -91,7 +91,7 @@ public final class AppActions implements ActionComponent {
         if(!((AppUI)applicationTemplate.getUIComponent()).isAlgorithmRunning() && ((AppUI)applicationTemplate.getUIComponent()).getSaveButton().isDisabled())
             Platform.exit();
         //if algorithm is running
-        if(((AppUI)applicationTemplate.getUIComponent()).isAlgorithmRunning()){
+        else if(((AppUI)applicationTemplate.getUIComponent()).isAlgorithmRunning()){
             Dialog ynd = YesNoDialog.getDialog();
             ynd.show(manager.getPropertyValue(ALGO_RUNNING.name()), manager.getPropertyValue(EXIT_WHILE_RUNNING_WARNING.name()));
             YesNoDialog.Option response = ((YesNoDialog)ynd).getSelectedOption();
@@ -99,7 +99,7 @@ public final class AppActions implements ActionComponent {
                 System.exit(0);
         }
         //if data is unsaved
-        if(!((AppUI)applicationTemplate.getUIComponent()).getSaveButton().isDisabled()){
+        else if(!((AppUI)applicationTemplate.getUIComponent()).getSaveButton().isDisabled()){
             Dialog cd = applicationTemplate.getDialog(Dialog.DialogType.CONFIRMATION);
             ((ConfirmationDialog)cd).setWidth(applicationTemplate.getUIComponent().getPrimaryWindow().getWidth()*((double)5/12));
             cd.show(manager.getPropertyValue(SAVE_UNSAVED_WORK_TITLE.name()), manager.getPropertyValue(SAVE_UNSAVED_WORK.name()));

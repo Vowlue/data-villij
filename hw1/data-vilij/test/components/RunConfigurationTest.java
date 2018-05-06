@@ -43,7 +43,7 @@ public class RunConfigurationTest {
         RunConfiguration.ConfigInfo config = new RunConfiguration.ConfigInfo();
         config.setMaxIterations(Integer.MIN_VALUE);
         confirmClassificationSettings(config);
-        assertEquals(0, config.getMaxIterations());
+        assertEquals(1, config.getMaxIterations());
     }
     /**
      *  For update interval, it makes no sense if the update interval is 0 or less, so it will also be defaulted to 1 like the iterations.
@@ -62,7 +62,7 @@ public class RunConfigurationTest {
     public void testInvalidInterval(){
         RunConfiguration.ConfigInfo config = new RunConfiguration.ConfigInfo();
         config.setMaxIterations(100);
-        config.setMaxIterations(101);
+        config.setUpdateInterval(101);
         confirmClassificationSettings(config);
         assertEquals(100, config.getUpdateInterval());
     }

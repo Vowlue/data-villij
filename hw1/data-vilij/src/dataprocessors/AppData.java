@@ -167,6 +167,8 @@ public class AppData implements DataComponent{
             if(!amChangingComboBox) {
                 appUI.hideClassification();
                 appUI.hideClustering();
+                appUI.hideRunButton();
+                appUI.unselectRadioButtons();
                 switch (comboBox.getValue()) {
                     case "Classification":
                         appUI.showClassification();
