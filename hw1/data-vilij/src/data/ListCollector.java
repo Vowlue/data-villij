@@ -3,10 +3,10 @@ package data;
 import java.util.List;
 
 public class ListCollector {
-    private List dataList;
+    private List<Integer> dataList;
     private boolean empty = true;
 
-    synchronized List take(){
+    synchronized List<Integer> take(){
         while(empty) {
             try { wait(); } catch (InterruptedException ignored) { }
         }
@@ -15,7 +15,7 @@ public class ListCollector {
         return dataList;
     }
 
-    public synchronized void put(List dataList){
+    public synchronized void put(List<Integer> dataList){
         while(!empty){
             try { wait(); } catch (InterruptedException ignored) { }
         }

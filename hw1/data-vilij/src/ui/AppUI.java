@@ -2,10 +2,6 @@ package ui;
 
 import actions.AppActions;
 import algorithmbase.Algorithm;
-import algorithmbase.Clusterer;
-import algorithms.KMeansClusterer;
-import algorithms.RandomClassifier;
-import algorithms.RandomClusterer;
 import components.RunConfiguration;
 import components.YesNoDialog;
 import data.*;
@@ -26,7 +22,6 @@ import vilij.templates.UITemplate;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -85,10 +80,6 @@ public final class AppUI extends UITemplate {
 
     public boolean isAlgorithmRunning() {
         return algorithmRunning;
-    }
-
-    public void setAlgorithmRunning(boolean algorithmRunning) {
-        this.algorithmRunning = algorithmRunning;
     }
 
     AppUI(Stage primaryStage, ApplicationTemplate applicationTemplate) {
@@ -186,7 +177,7 @@ public final class AppUI extends UITemplate {
     }
 
     private void continueAlgorithm(){
-        synchronized (applicationTemplate){
+        synchronized (applicationTemplate.getUIComponent()){
             algorithmPaused = false;
             applicationTemplate.notifyAll();
         }
@@ -281,7 +272,7 @@ public final class AppUI extends UITemplate {
                     if(classif) {
                         try {
                             if(algorithm.getSuperclass().equals(Class.forName(type.getName())))
-                                classificationSpace.getChildren().add(createAlgorithmOption(algorithm, classGroup, classif));
+                                classificationSpace.getChildren().add(createAlgorithmOption(algorithm, classGroup, true));
 
                         } catch (ClassNotFoundException e) {
                             e.printStackTrace();
@@ -290,7 +281,7 @@ public final class AppUI extends UITemplate {
                     else{
                         try {
                             if(algorithm.getSuperclass().equals(Class.forName(type.getName())))
-                                clusteringSpace.getChildren().add(createAlgorithmOption(algorithm, clustGroup, classif));
+                                clusteringSpace.getChildren().add(createAlgorithmOption(algorithm, clustGroup, false));
                         } catch (ClassNotFoundException e) {
                             e.printStackTrace();
                         }
@@ -346,7 +337,7 @@ public final class AppUI extends UITemplate {
     }
 
     public void hideRunButton(){ runPane.getChildren().remove(runButton); }
-    public void showRunButton(){ if(!runPane.getChildren().contains(runButton)) runPane.getChildren().add(runButton); }
+    private void showRunButton(){ if(!runPane.getChildren().contains(runButton)) runPane.getChildren().add(runButton); }
     public void enableScreenshotButton(boolean b){
         scrnshotButton.setDisable(!b);
     }
@@ -366,7 +357,7 @@ public final class AppUI extends UITemplate {
     public void finishAlgorithm(){
         this.showRunButton();
         this.enableScreenshotButton(true);
-        this.setAlgorithmRunning(false);
+        this.algorithmRunning = false;
         this.changeRunButton(0);
     }
 

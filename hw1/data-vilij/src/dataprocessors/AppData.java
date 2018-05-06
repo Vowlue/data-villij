@@ -72,7 +72,6 @@ public class AppData implements DataComponent{
     }
 
     public boolean isDataIsValid(){ return dataIsValid; }
-    public TSDProcessor getProcessor(){ return processor; }
 
     @Override
     public void loadData(Path dataFilePath) {
@@ -81,9 +80,10 @@ public class AppData implements DataComponent{
             BufferedReader reader = new BufferedReader(new FileReader(dataFilePath.toString()));
             StringBuilder buffer;
             buffer = new StringBuilder();
-            String line;
+            String line = reader.readLine();
+            buffer.append(line);
             while((line = reader.readLine()) != null){
-                buffer.append(line).append("\n");
+                buffer.append("\n").append(line);
             }
             loadedData = buffer.toString();
             TextArea textArea = ((AppUI)applicationTemplate.getUIComponent()).getTextArea();
@@ -268,7 +268,8 @@ public class AppData implements DataComponent{
     }
 
     public void processDataSet(DataSet dataSet){
-        processor.processString(((AppUI)applicationTemplate.getUIComponent()).getChart(), dataSet);
+        ((AppUI)applicationTemplate.getUIComponent()).getChart().getData().clear();
+        processor.processString(dataSet);
         processor.toChartData(((AppUI)applicationTemplate.getUIComponent()).getChart());
     }
 

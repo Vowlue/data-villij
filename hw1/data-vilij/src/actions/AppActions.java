@@ -167,7 +167,7 @@ public final class AppActions implements ActionComponent {
     }
 
     public void waitForUser() {
-        synchronized (applicationTemplate){
+        synchronized (applicationTemplate.getUIComponent()){
             while(((AppUI)applicationTemplate.getUIComponent()).isAlgorithmPaused()){
                 try {
                     applicationTemplate.wait();

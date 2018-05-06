@@ -24,13 +24,22 @@ public class RunConfiguration extends Stage implements Dialog {
         public int getLabelNumber() {
             return labelNumber;
         }
-
         void setLabelNumber(int labelNumber) {
             this.labelNumber = labelNumber;
         }
-    }
-
-    public static class ClassificationConfig extends ConfigInfo{
+        int confirmLabels(String labels) {
+            try{
+                int i = Integer.parseInt(labels);
+                if(i<2)
+                    return 2;
+                else if(i>4)
+                    return 4;
+                return i;
+            }
+            catch(Exception e){
+                return 1;
+            }
+        }
     }
 
     public static class ConfigInfo{
@@ -44,25 +53,45 @@ public class RunConfiguration extends Stage implements Dialog {
         public int getMaxIterations() {
             return maxIterations;
         }
-
         void setMaxIterations(int maxIterations) {
             this.maxIterations = maxIterations;
         }
-
         public int getUpdateInterval() {
             return updateInterval;
         }
-
         void setUpdateInterval(int updateInterval) {
             this.updateInterval = updateInterval;
         }
-
         public boolean isContinuous() {
             return continuous;
         }
-
         void setContinuous(boolean continuous) {
             this.continuous = continuous;
+        }
+        int confirmIterations(String iterations){
+            try{
+                int i = Integer.parseInt(iterations);
+                if(i<0)
+                    return 1;
+                return i;
+            }
+            catch(Exception e){
+                return 1;
+            }
+        }
+
+        int confirmInterval(String interval, int iterations){
+            try{
+                int i = Integer.parseInt(interval);
+                if(i<0)
+                    return 1;
+                if(i>iterations)
+                    return iterations;
+                return i;
+            }
+            catch(Exception e){
+                return 1;
+            }
         }
     }
 
@@ -70,6 +99,7 @@ public class RunConfiguration extends Stage implements Dialog {
     private static RunConfiguration config;
     private TextField iterationField;
     private TextField updateField;
+
     private CheckBox continuousCheckBox;
     private TextField labelNumberField;
     private Button setConfig;
@@ -142,60 +172,20 @@ public class RunConfiguration extends Stage implements Dialog {
     }
 
     private void applyClassificationSettings(ConfigInfo config){
-        int iterations = confirmIterations(iterationField.getText());
+        int iterations = config.confirmIterations(iterationField.getText());
         iterationField.setText(""+iterations);
         config.setMaxIterations(iterations);
-        int interval = confirmInterval(updateField.getText(), iterations);
+        int interval = config.confirmInterval(updateField.getText(), iterations);
         config.setUpdateInterval(interval);
         updateField.setText(""+interval);
         config.setContinuous(continuousCheckBox.isSelected());
     }
 
-    private void applyClusteringSettings(ConfigInfo config){
+    private void applyClusteringSettings(ClusteringConfig config){
         applyClassificationSettings(config);
-        ClusteringConfig c = (ClusteringConfig)config;
-        int labelNum = confirmLabels(labelNumberField.getText());
+        int labelNum = config.confirmLabels(labelNumberField.getText());
         labelNumberField.setText(""+labelNum);
-        c.setLabelNumber(labelNum);
+        config.setLabelNumber(labelNum);
     }
 
-    private int confirmLabels(String labels) {
-        try{
-            int i = Integer.parseInt(labels);
-            if(i<2)
-                return 2;
-            else if(i>4)
-                return 4;
-            return i;
-        }
-        catch(Exception e){
-            return 1;
-        }
-    }
-
-    private int confirmIterations(String iterations){
-        try{
-            int i = Integer.parseInt(iterations);
-            if(i<0)
-                return 1;
-            return i;
-        }
-        catch(Exception e){
-            return 1;
-        }
-    }
-
-    private int confirmInterval(String interval, int iterations){
-        try{
-            int i = Integer.parseInt(interval);
-            if(i<0)
-                return 1;
-            if(i>iterations)
-                return iterations;
-            return i;
-        }
-        catch(Exception e){
-            return 1;
-        }
-    }
 }

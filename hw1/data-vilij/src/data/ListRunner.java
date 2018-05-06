@@ -24,9 +24,8 @@ public class ListRunner implements Runnable{
         AppUI appUI = (AppUI)applicationTemplate.getUIComponent();
         AppActions appActions = (AppActions)applicationTemplate.getActionComponent();
         AppData appData = (AppData)applicationTemplate.getDataComponent();
-        System.out.println(collector.take());
-        for(List dataList = collector.take(); dataList != null; dataList = collector.take()){
-            List finalDataList = dataList;
+        for(List<Integer> dataList = collector.take(); dataList != null; dataList = collector.take()){
+            List<Integer> finalDataList = dataList;
             Task<Void> iterationTask = new Task<Void>() {
                 @Override
                 protected Void call() {
