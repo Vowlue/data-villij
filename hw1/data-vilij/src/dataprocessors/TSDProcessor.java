@@ -41,6 +41,14 @@ final class TSDProcessor {
         seriesInserted = false;
     }
 
+    Map<String, String> getDataLabels() {
+        return dataLabels;
+    }
+
+    Map<String, Point2D> getDataPoints() {
+        return dataPoints;
+    }
+
     /**
      * Processes the data and populated two {@link Map} objects with the data.
      *
@@ -71,8 +79,7 @@ final class TSDProcessor {
             throw new Exception(errorMessage.toString());
     }
 
-    void processString(LineChart<Number, Number> chart, DataSet dataSet){
-        chart.getData().clear();
+    void processString(DataSet dataSet){
         dataLabels.clear();
         dataPoints.clear();
         for(String instance: dataSet.getLabels().keySet()){
