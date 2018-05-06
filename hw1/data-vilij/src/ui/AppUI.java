@@ -247,10 +247,8 @@ public final class AppUI extends UITemplate {
         toggleButton = new Button(manager.getPropertyValue(DONE.name()));
         toggleButton.setVisible(false);
 
-        String algorithmPath = Paths.get("").toAbsolutePath().toString()+"\\hw1\\data-vilij\\src\\algorithms";
-        String algorithmTypesPath = Paths.get("").toAbsolutePath().toString()+"\\hw1\\data-vilij\\src\\algorithmbase";
-        File algoFolder = new File(algorithmPath);
-        File typeFolder = new File(algorithmTypesPath);
+        File algoFolder = new File("hw1/data-vilij/src/algorithms");
+        File typeFolder = new File("hw1/data-vilij/src/algorithmbase");
         List<Class> classList = new ArrayList<>();
         List<Class> typeList = new ArrayList<>();
         for(File file: Objects.requireNonNull(algoFolder.listFiles())){
