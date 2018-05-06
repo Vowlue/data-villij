@@ -167,10 +167,10 @@ public final class AppActions implements ActionComponent {
     }
 
     public void waitForUser() {
-        synchronized (applicationTemplate.getUIComponent()){
+        synchronized (applicationTemplate.manager){
             while(((AppUI)applicationTemplate.getUIComponent()).isAlgorithmPaused()){
                 try {
-                    applicationTemplate.wait();
+                    applicationTemplate.manager.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

@@ -168,18 +168,24 @@ public final class AppUI extends UITemplate {
         this.algorithmPaused = algorithmPaused;
     }
 
-    //edit this to be a boolean
     public void changeRunButton(int type){
+        runButton.setDisable(true);
         if(type == 0)
             runImage.setImage(new Image(getClass().getResourceAsStream(runPath)));
         else
             runImage.setImage(new Image(getClass().getResourceAsStream(continuePath)));
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException ignored) {
+
+        }
+        runButton.setDisable(false);
     }
 
     private void continueAlgorithm(){
-        synchronized (applicationTemplate.getUIComponent()){
+        synchronized (applicationTemplate.manager){
             algorithmPaused = false;
-            applicationTemplate.notifyAll();
+            applicationTemplate.manager.notifyAll();
         }
     }
 

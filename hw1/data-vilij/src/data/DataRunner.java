@@ -39,8 +39,7 @@ public class DataRunner implements Runnable{
             if(continuous){
                 new Thread(iterationTask).start();
                 try {
-                    long SLEEPTIME = 1000;
-                    Thread.sleep(SLEEPTIME);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

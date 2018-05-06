@@ -80,10 +80,9 @@ public class AppData implements DataComponent{
             BufferedReader reader = new BufferedReader(new FileReader(dataFilePath.toString()));
             StringBuilder buffer;
             buffer = new StringBuilder();
-            String line = reader.readLine();
-            buffer.append(line);
+            String line;
             while((line = reader.readLine()) != null){
-                buffer.append("\n").append(line);
+                buffer.append(line).append("\n");
             }
             loadedData = buffer.toString();
             TextArea textArea = ((AppUI)applicationTemplate.getUIComponent()).getTextArea();
@@ -190,12 +189,13 @@ public class AppData implements DataComponent{
 
     private void transferLines(String data){
         int lines = 10;
+        TextArea displayedTextArea = ((AppUI)applicationTemplate.getUIComponent()).getTextArea();
         while(!data.equals("") && lines > 0){
             lines--;
-            TextArea displayedTextArea = ((AppUI)applicationTemplate.getUIComponent()).getTextArea();
             displayedTextArea.setText(displayedTextArea.getText()+data.substring(0, data.indexOf("\n")+1));
             data = data.substring(data.indexOf("\n")+1);
         }
+
     }
 
     private int getLineCount(String text) {
